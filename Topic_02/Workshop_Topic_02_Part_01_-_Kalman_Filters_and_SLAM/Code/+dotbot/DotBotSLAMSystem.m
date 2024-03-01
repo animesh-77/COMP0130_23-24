@@ -32,10 +32,12 @@ classdef DotBotSLAMSystem < minislam.slam.SLAMSystem
     methods(Access = public)
     
         function this = DotBotSLAMSystem(configuration)
+            % constructor
             this = this@minislam.slam.SLAMSystem(configuration);
             
             % Set the storage up for stuff like the history
             this.xStore = NaN(dotbot.DotBotSLAMSystem.NP, 1);
+            % makes a column vector filled with NaN
             this.PStore = NaN(dotbot.DotBotSLAMSystem.NP, 1);
             this.x = NaN(dotbot.DotBotSLAMSystem.NP, 1);
             this.P = NaN(dotbot.DotBotSLAMSystem.NP, dotbot.DotBotSLAMSystem.NP);

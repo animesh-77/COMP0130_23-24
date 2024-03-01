@@ -1,6 +1,12 @@
 classdef DotBotSimulator < minislam.event_generators.EventGenerator
-    
+% This line defines the class DotBotSimulator as a subclass of minislam.event_generators.EventGenerator
+% DotBotSimulator inherits properties and methods from EventGenerator
+
         properties(Access = protected)
+        % Properties are attributes or features that characterize classes
+        % Properties declared with Access = protected can only be accessed
+        % by methods ,
+        % within the class or its subclasses, not from outside.
             
         % The current simulation time
         currentTime;
@@ -49,18 +55,26 @@ classdef DotBotSimulator < minislam.event_generators.EventGenerator
     methods(Access = public)
         
         function this = DotBotSimulator(configuration)
+        % constructor that takes as input (configuration)
             
             this = this@minislam.event_generators.EventGenerator(configuration);
+            % calls the constructor of the superclass EventGenerator using the @ syntax, 
+            % passing the configuration argument to it. 
+            % This initializes the DotBotSimulator object as an EventGenerator object 
+            % with the given configuration.
             
             if (configuration.perturbWithNoise == true)
+            % checks if the perturbWithNoise field of the configuration struct is set to true
                 this.noiseScale = 1;
             else
                 this.noiseScale = 0;
             end
         end
+        % end of constructor
         
         % Start the simulator
         function start(this)
+        % this is an object (not sure)
            
             conf = this.configuration;
             
@@ -85,6 +99,7 @@ classdef DotBotSimulator < minislam.event_generators.EventGenerator
             
             % Start at the origin with zero speed
             this.x = [0, 0, 0, 0]';
+            % x y x_speed y_speed
             
             % Clear the event queue
             this.mostRecentEvents = minislam.event_generators.OrderedEventQueue();
@@ -122,7 +137,10 @@ classdef DotBotSimulator < minislam.event_generators.EventGenerator
         end
         
         function T = time(this)
+        % method named time that takes the current object (this) as input.
             T = this.currentTime;
+        % this.currentTime is then assigned to the variable T.
+        % Finally, T is returned from the method, representing the current simulation time
         end
         
         function x = currentState(this)
