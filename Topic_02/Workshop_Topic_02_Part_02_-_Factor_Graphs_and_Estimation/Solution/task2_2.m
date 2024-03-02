@@ -2,13 +2,16 @@
 % object which has both position and velocity
 
 import g2o.core.*;
-import two_d_tracking.*;
+import two_d_tracking_model_answer.*;
 
 % Some parameters
 numberOfTimeSteps = 1000;
 dT = 1;
-sigmaR = 100;
+sigmaR = diag([10 1*pi/180]).^2;
 sigmaQ = 0.01;
+
+% Some sensor positions
+sensorPose=[50 50 0]';
 
 % Work out the state transition equations
 F0=[1 dT; 0 1];
@@ -16,13 +19,9 @@ Q0=[dT^3/3 dT^2/2;dT^2/2 dT] * sigmaQ;
 
 F = [F0 zeros(2); zeros(2) F0];
 Q = [Q0 zeros(2); zeros(2) Q0];
-R = eye(2) * sigmaR;
-
-H = [1 0 0 0;
-    0 0 1 0];
 
 % Work out the information matrices
-omegaR = inv(R);
+omegaR = inv(sigmaR);
 omegaQ = inv(Q);
 
 % Ground truth array
@@ -32,17 +31,23 @@ z = zeros(2, numberOfTimeSteps);
 % First timestep
 trueX(2, 1) = 0.1;
 trueX(4, 1) = -0.1;
-z(:, 1) = H * trueX(:, 1) + sqrtm(sigmaR) * randn(2, 1);
+
+dXY = trueX([1 3], 1) - sensorPose(1:2);
+z(:, 1) = [norm(dXY); atan2(dXY(2), dXY(1)) - sensorPose(3)];
 
 % Now predict the subsequent steps
 for k = 2 : numberOfTimeSteps
     trueX(:, k) = F * trueX(:, k - 1) + sqrtm(Q) * randn(4, 1);
-    z(:, k) = H * trueX(:, k) + sqrtm(sigmaR) * randn(2, 1);
+    dXY = trueX([1 3], k) - sensorPose(1:2);
+    z(:, k) = [norm(dXY); atan2(dXY(2), dXY(1)) - sensorPose(3)];
 end
+
+z = z + sqrtm(sigmaR) * randn(2, numberOfTimeSteps);
+z(2,:) = g2o.stuff.normalize_thetas(z(2,:));
 
 % Create the graph
 graph = SparseOptimizer();
-algorithm = GaussNewtonOptimizationAlgorithm();
+algorithm = LevenbergMarquardtOptimizationAlgorithm();
 graph.setAlgorithm(algorithm);
 
 % This array contains the set of vertices for the target state over time
@@ -50,24 +55,22 @@ v = cell(numberOfTimeSteps, 1);
 
 % Now create the vertices and edges
 
+xy = zeros(2, numberOfTimeSteps);
+vxvy = zeros(2, numberOfTimeSteps);
+
 for n = 1 : numberOfTimeSteps
     
     % Create the first object state vertex
     v{n} = ObjectStateVertex();
 
     % Set the initial estimate.
-    v{n}.setEstimate(zeros(4, 1));
-
-    % Another way to do it would be to initialize from pairs of
-    % measurements. For example:
-    %if (n == 1)
-    %    dz = z(:, 2) - z(:, 1);
-    %else
-    %    dz = z(:, n) - z(:, n-1);
-    %end
-    %dzdt = dz / dT;
-    %v{n}.setEstimate([z(1, n); dzdt(1); z(2, n); dzdt(2)]);
+    xy(:, n) = z(1,n) .* [cos(z(2,n) + sensorPose(3));sin(z(2,n) + sensorPose(3))]+sensorPose(1:2);
+    if (n > 2)
+        vxvy(:,n) = (xy(:,n)-xy(:,n-1)) / dT;
+    end
     
+    v{n}.setEstimate([xy(1, n) 0 xy(2, n) 0]');
+        
     % Added the vertex to the graph.
     graph.addVertex(v{n});
     
@@ -82,9 +85,9 @@ for n = 1 : numberOfTimeSteps
         graph.addEdge(processModelEdge);
     end
     
-    
     % Create the measurement edge
-    e = ObjectMeasurementEdge();
+    e = ObjectPolarMeasurementEdge();
+    e.setSensorPose(sensorPose);
     
     % Link it so that it connects to the vertex we want to estimate
     e.setVertex(1, v{n});
@@ -96,6 +99,7 @@ for n = 1 : numberOfTimeSteps
     % Add the edge to the graph; the graph now knows we have these edges
     % which need to be added
     graph.addEdge(e);
+    
 end
 
 % Graph construction complete
@@ -105,11 +109,11 @@ end
 graph.initializeOptimization();
 
 % Create some output as we go
-x = zeros(4, numberOfTimeSteps);
+x0 = zeros(4, numberOfTimeSteps);
 
 % First copy the state values - these are the prior we set the graph to
 for n = 1 : numberOfTimeSteps
-    x(:, n) = v{n}.estimate();
+    x0(:, n) = v{n}.estimate();
 end
 
 % Plot the prior and the truth
@@ -118,22 +122,25 @@ clf
 
 % Plot. Note that we capture the line handle. This is overkill in this
 % case, but it's a useful habit to get into for labelling graphs.
-gH(1)=plot(x(1, :), x(3,:));
+gH(1)=plot(x0(1, :), x0(3,:), '-*');
 hold on
-gH(2)=plot(trueX(1, :), trueX(3, :));
+gH(2)=plot(trueX(1, :), trueX(3, :), '-+');
 
 % Optimize the graph
 tic
-graph.optimize(5000)
+graph.optimize(10)
 toc
 
 % Extract the optimized state estimate and plot
+x = zeros(4, numberOfTimeSteps);
 for n = 1 : numberOfTimeSteps
     x(:, n) = v{n}.estimate();
 end
 gH(3)=plot(x(1, :), x(3, :), 'LineWidth', 2);
 
-gH(4)=plot(z(1,:),z(2,:));
+zXY = z(1,:) .* [cos(z(2,:) + sensorPose(3));sin(z(2,:) + sensorPose(3))];
+
+gH(4)=plot(zXY(1,:) + sensorPose(1), zXY(2,:) + sensorPose(2), '-o');
 
 % Generate the legend
 legend(gH, {'Prior', 'Truth', 'Optimized', 'Observation'});

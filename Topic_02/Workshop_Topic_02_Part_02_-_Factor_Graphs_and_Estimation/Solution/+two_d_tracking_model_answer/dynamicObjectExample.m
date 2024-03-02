@@ -2,13 +2,17 @@
 % object which has both position and velocity
 
 import g2o.core.*;
-import two_d_tracking.*;
+import two_d_tracking_model_answer.*;
 
 % Some parameters
-numberOfTimeSteps = 1000;
+numberOfTimeSteps = 400;
 dT = 1;
-sigmaR = 100;
-sigmaQ = 0.01;
+sigmaR = 1;
+sigmaQ = 100;
+
+% The observation period - observations are available once every
+% obsPeriod steps
+obsPeriod = 10;
 
 % Work out the state transition equations
 F0=[1 dT; 0 1];
@@ -42,6 +46,8 @@ end
 
 % Create the graph
 graph = SparseOptimizer();
+%algorithm = LevenbergMarquardtOptimizationAlgorithm();
+%algorithm = MatlabNLOptimizationAlgorithm();
 algorithm = GaussNewtonOptimizationAlgorithm();
 graph.setAlgorithm(algorithm);
 
@@ -56,17 +62,12 @@ for n = 1 : numberOfTimeSteps
     v{n} = ObjectStateVertex();
 
     % Set the initial estimate.
-    v{n}.setEstimate(zeros(4, 1));
-
-    % Another way to do it would be to initialize from pairs of
-    % measurements. For example:
     %if (n == 1)
-    %    dz = z(:, 2) - z(:, 1);
+    %    v{n}.setEstimate([z(1, 1); (z(1, 2)-z(1, 1)) / dT; z(2, 2); ]);
     %else
-    %    dz = z(:, n) - z(:, n-1);
+    %    v{n}.setEstimate([z(1, n); (z(n)-z(n-1)) / dT]);
     %end
-    %dzdt = dz / dT;
-    %v{n}.setEstimate([z(1, n); dzdt(1); z(2, n); dzdt(2)]);
+    v{n}.setEstimate(zeros(4, 1));
     
     % Added the vertex to the graph.
     graph.addVertex(v{n});
@@ -82,20 +83,23 @@ for n = 1 : numberOfTimeSteps
         graph.addEdge(processModelEdge);
     end
     
-    
-    % Create the measurement edge
-    e = ObjectMeasurementEdge();
-    
-    % Link it so that it connects to the vertex we want to estimate
-    e.setVertex(1, v{n});
-    
-    % Set the measurement value and the measurement covariance
-    e.setMeasurement(z(:,n));
-    e.setInformation(omegaR);
-    
-    % Add the edge to the graph; the graph now knows we have these edges
-    % which need to be added
-    graph.addEdge(e);
+    if (rem(n, obsPeriod) == 1)
+
+        % Create the measurement edge
+        e = ObjectMeasurementEdge();
+
+        % Link it so that it connects to the vertex we want to estimate
+        e.setVertex(1, v{n});
+
+        % Set the measurement value and the measurement covariance
+        e.setMeasurement(z(:,n));
+        e.setInformation(omegaR);
+            %keyboard
+
+        % Add the edge to the graph; the graph now knows we have these edges
+        % which need to be added
+        graph.addEdge(e);
+    end
 end
 
 % Graph construction complete
@@ -133,10 +137,4 @@ for n = 1 : numberOfTimeSteps
 end
 gH(3)=plot(x(1, :), x(3, :), 'LineWidth', 2);
 
-gH(4)=plot(z(1,:),z(2,:));
-
-% Generate the legend
-legend(gH, {'Prior', 'Truth', 'Optimized', 'Observation'});
-title([num2str(graph.chi2())])
-drawnow
-
+gH(4)=plot(z(1,1:obsPeriod:end),z(2,1:obsPeriod:end));

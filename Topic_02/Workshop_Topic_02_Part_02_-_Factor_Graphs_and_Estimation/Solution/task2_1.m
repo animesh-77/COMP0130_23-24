@@ -2,7 +2,7 @@
 % object which has both position and velocity
 
 import g2o.core.*;
-import two_d_tracking.*;
+import two_d_tracking_model_answer.*;
 
 % Some parameters
 numberOfTimeSteps = 1000;
@@ -67,7 +67,7 @@ for n = 1 : numberOfTimeSteps
     %end
     %dzdt = dz / dT;
     %v{n}.setEstimate([z(1, n); dzdt(1); z(2, n); dzdt(2)]);
-    
+
     % Added the vertex to the graph.
     graph.addVertex(v{n});
     
