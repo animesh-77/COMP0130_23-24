@@ -11,33 +11,44 @@ sigmaR = 100;
 sigmaQ = 0.01;
 
 % Work out the state transition equations
-F0=[1 dT; 0 1];
-Q0=[dT^3/3 dT^2/2;dT^2/2 dT] * sigmaQ;
+F0=[1 dT; 0 1]; % (2,2) submatrix
+Q0=[dT^3/3 dT^2/2;dT^2/2 dT] * sigmaQ; % (2,2) submatrix
 
-F = [F0 zeros(2); zeros(2) F0];
-Q = [Q0 zeros(2); zeros(2) Q0];
+F = [F0 zeros(2); zeros(2) F0]; % (4,4) matrix
+Q = [Q0 zeros(2); zeros(2) Q0]; % (4,4) matrix
 R = eye(2) * sigmaR;
 
 H = [1 0 0 0;
-    0 0 1 0];
+    0 0 1 0];% (2,4) 
+% takes trueX and extracts x_pos and y_pos
 
 % Work out the information matrices
 omegaR = inv(R);
 omegaQ = inv(Q);
 
 % Ground truth array
-trueX = zeros(4, numberOfTimeSteps);
-z = zeros(2, numberOfTimeSteps);
+trueX = zeros(4, numberOfTimeSteps); % (4,N)
+z = zeros(2, numberOfTimeSteps); % (2,N) GPS pos
+
+
+
 
 % First timestep
-trueX(2, 1) = 0.1;
-trueX(4, 1) = -0.1;
-z(:, 1) = H * trueX(:, 1) + sqrtm(sigmaR) * randn(2, 1);
+trueX(2, 1) = 0.1; % speed_x
+trueX(4, 1) = -0.1; % speed_y
+% x_pos and y_pos remain 0
+z(:, 1) = H * trueX(:, 1) + sqrtm(sigmaR) * randn(2, 1); % (2,N) GPS pos
 
 % Now predict the subsequent steps
 for k = 2 : numberOfTimeSteps
     trueX(:, k) = F * trueX(:, k - 1) + sqrtm(Q) * randn(4, 1);
+    % (4,4)*(4, 1)+ (4, 1)
+    % process model
     z(:, k) = H * trueX(:, k) + sqrtm(sigmaR) * randn(2, 1);
+    % (2,4)*(4,1)+ (2,1)
+    % x_pos,y_pos + Noise --> GPS pos
+    % this is what we observe and will be stored in
+    % ObjectMeasurementEdge.Measurement
 end
 
 % Create the graph
@@ -46,14 +57,15 @@ algorithm = GaussNewtonOptimizationAlgorithm();
 graph.setAlgorithm(algorithm);
 
 % This array contains the set of vertices for the target state over time
-v = cell(numberOfTimeSteps, 1);
+v = cell(numberOfTimeSteps, 1); % cell array a new kind of data structure
 
 % Now create the vertices and edges
 
 for n = 1 : numberOfTimeSteps
     
     % Create the first object state vertex
-    v{n} = ObjectStateVertex();
+    v{n} = ObjectStateVertex(); % two_d_tracking already implemented
+    % which itself is a subclass
 
     % Set the initial estimate.
     v{n}.setEstimate(zeros(4, 1));
@@ -100,12 +112,20 @@ end
 
 % Graph construction complete
 
+
+
+
+
+
+
+
+
 % Initialise the optimization. This is done here because it's a bit
 % expensive and if we cache it, we can do it multiple times
 graph.initializeOptimization();
 
 % Create some output as we go
-x = zeros(4, numberOfTimeSteps);
+x = zeros(4, numberOfTimeSteps); % (4,N) matrix
 
 % First copy the state values - these are the prior we set the graph to
 for n = 1 : numberOfTimeSteps
@@ -118,22 +138,29 @@ clf
 
 % Plot. Note that we capture the line handle. This is overkill in this
 % case, but it's a useful habit to get into for labelling graphs.
-gH(1)=plot(x(1, :), x(3,:));
+gH(1)=plot(x(1, :), x(3,:), 'Marker', '.', 'MarkerSize', 20);
+% x holds the prior values
+% all PRIORS are at (0,0) so all points at origin
 hold on
 gH(2)=plot(trueX(1, :), trueX(3, :));
+% Ground truth
 
 % Optimize the graph
 tic
+% start of the time
 graph.optimize(5000)
 toc
+% end of time, used to see elapsed time
 
 % Extract the optimized state estimate and plot
 for n = 1 : numberOfTimeSteps
     x(:, n) = v{n}.estimate();
+    % now x will hold the Posterior values
 end
 gH(3)=plot(x(1, :), x(3, :), 'LineWidth', 2);
 
 gH(4)=plot(z(1,:),z(2,:));
+% observed GPS values which are very noisy
 
 % Generate the legend
 legend(gH, {'Prior', 'Truth', 'Optimized', 'Observation'});
