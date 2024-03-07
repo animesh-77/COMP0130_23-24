@@ -7,17 +7,27 @@ import g2o.core.*;
 import one_d_static.*;
 
 % Some parameters
-numberOfMeasurements = 1;
-sigmaR = 10;
+numberOfMeasurements = 100;
+sigmaR(1) = 1; % good sensor
+sigmaR(2) = 10; % (1, 2) 
+% faulty sensor
 
 % The information (inverse covariance) for the measurement edge
-omegaR = 1/sigmaR;
+omegaR = 1 ./ sigmaR;
 
 % Ground truth location
 trueX = 10;
 
+% Odd even flag. This causes us to "switch" between the two sensors. The
+% first line means we always use the good sensor, the second case
+% alternates between the two
+oddEven = ones(numberOfMeasurements, 1); % (1,N)
+% oddEven = mod(0:numberOfMeasurements-1, 2) + 1;
+
 % Sample the noises for the different observations
-z = trueX + sqrt(sigmaR) * randn(numberOfMeasurements, 1);
+A= sqrt(sigmaR(oddEven));
+B= randn(numberOfMeasurements, 1);
+z = trueX +  A.*B ;
 
 % Create the graph
 graph = SparseOptimizer();
@@ -36,56 +46,56 @@ v.setEstimate(z(1));
 % states we want to estimate.
 graph.addVertex(v);
 
+% Store for the covariance and the estimate
+xStore = NaN(numberOfMeasurements, 1);
+PStore = NaN(numberOfMeasurements, 1);
+
 % Create the edges. Each edge corresponds to a position measurement.
 
-assert(numberOfMeasurements == 1, 'Extend to more than one measurement for task 1');
+for k = 1 : numberOfMeasurements
+    fprintf("on iterate %d", k)
 
-% Create the measurement edge
-e = ObjectMeasurementEdge();
+    % Create the measurement edge
+    e = ObjectMeasurementEdge();
 
-% Link it so that it connects to the vertex we want to estimate
-e.setVertex(1, v);
+    % Link it so that it connects to the vertex we want to estimate
+    e.setVertex(1, v);
 
-% Set the measurement value and the measurement covariance
-e.setMeasurement(z(1));
-e.setInformation(omegaR);
+    % Set the measurement value and the measurement covariance
+    e.setMeasurement(z(k, 1));
+    e.setInformation(omegaR(oddEven(k, 1)));
 
-% Add the edge to the graph; the graph now knows we have these edges
-% which need to be added
-graph.addEdge(e);
+    % Add the edge to the graph; the graph now knows we have these edges
+    % which need to be added
+    graph.addEdge(e);
 
-% Graph construction complete
+    % Graph construction complete for this iteration
 
-% Initialise the optimization. If you ever change the structure of the
-% graph (e.g., add remove edges and vertices) you must call this before
-% calling optimize. If you don't change the graph structure, you can call
-% optimze multiple times without calling initializeOptimization().
-graph.initializeOptimization();
+    % Initialise the optimization. If you ever change the structure of the
+    % graph (e.g., add remove edges and vertices) you must call this before
+    % calling optimize. If you don't change the graph structure, you can call
+    % optimze multiple times without calling initializeOptimization().
+    graph.initializeOptimization();
 
-% Run the optimizer. By default it does at most 10 iterations, but you can
-% pass the number in optionally.
-graph.optimize()
+    % Run the optimizer. By default it does at most 10 iterations, but you can
+    % pass the number in optionally.
+    graph.optimize();
 
-% Get the estimate and covariance. In graph-land, getting the covariance
-% matrix is described as "computing the marginals". Note the vector X is
-% the "big state vector" which consists of the states from all the vertices
-% concatenated on one another. Similarly, PX is a sparse covariance matrix
-% which contains the covariances of the vertices.
-[X, PX] = graph.computeMarginals();
+    % Get the estimate and covariance. In graph-land, getting the covariance
+    % matrix is described as "computing the marginals". Note the vector X is
+    % the "big state vector" which consists of the states from all the vertices
+    % concatenated on one another. Similarly, PX is a sparse covariance matrix
+    % which contains the covariances of the vertices.
+    [X, PX] = graph.computeMarginals();
+    
+    % Store the estimate and covariance. In this case, because they are
+    % scalar, we simply copy them across.
+    xStore(k) = X;
+    PStore(k) = PX;
+end
 
-% To extract the state from a vertex, do
-% idx = vertex.hessianIndex();
-%
-% The state estimate is X(idx)
-%
-% The covariance of this state estimate is P(idx, idx)
-%
-% This looks a bit awkward, but it's the convention for using this graph
-% library.
-
-idx = v.hessianIndex();
-
-X(idx)
-PX(idx, idx)
-
-
+figure(1)
+clf
+plot(xStore)
+figure(2)
+plot(PStore)
