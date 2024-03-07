@@ -7,11 +7,16 @@ classdef GPSMeasurementEdge < g2o.core.BaseUnaryEdge
         end
         
         function computeError(this)
-            error('Implement this');
+            % error('Implement this');
+            x = this.edgeVertices{1}.estimate();
+            this.errorZ = x(1:2) - this.z;
         end
         
         function linearizeOplus(this)
-            error('Implement this');
+            % error('Implement this');
+            this.J{1} = ...
+                [1 0 0;
+                0 1 0];
         end        
     end
 end

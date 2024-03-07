@@ -7,7 +7,7 @@ import g2o.core.*;
 import one_d_static.*;
 
 % Some parameters
-numberOfMeasurements = 100;
+numberOfMeasurements = 5;
 sigmaR(1) = 1; % good sensor
 sigmaR(2) = 10; % (1, 2) 
 % faulty sensor

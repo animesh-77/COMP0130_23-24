@@ -58,6 +58,7 @@ graph.setAlgorithm(algorithm);
 
 % This array contains the set of vertices for the target state over time
 v = cell(numberOfTimeSteps, 1); % cell array a new kind of data structure
+% (n,1)
 
 % Now create the vertices and edges
 
@@ -94,7 +95,7 @@ for n = 1 : numberOfTimeSteps
         graph.addEdge(processModelEdge);
     end
     
-    
+    % if (n<450) || (n>500)
     % Create the measurement edge
     e = ObjectMeasurementEdge();
     
@@ -108,7 +109,9 @@ for n = 1 : numberOfTimeSteps
     % Add the edge to the graph; the graph now knows we have these edges
     % which need to be added
     graph.addEdge(e);
+    % end
 end
+
 
 % Graph construction complete
 
@@ -151,6 +154,15 @@ tic
 graph.optimize(5000)
 toc
 % end of time, used to see elapsed time
+
+
+disp("State estimates for t=1")
+disp(v{1}.estimate())
+disp("Dimensions of state t=1")
+disp(v{1}.dimension)
+disp("Edges of for this")
+disp(v{1}.edges)
+
 
 % Extract the optimized state estimate and plot
 for n = 1 : numberOfTimeSteps

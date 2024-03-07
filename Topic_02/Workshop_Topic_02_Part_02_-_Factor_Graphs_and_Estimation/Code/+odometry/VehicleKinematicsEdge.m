@@ -27,12 +27,44 @@ classdef VehicleKinematicsEdge < g2o.core.BaseBinaryEdge
         end
        
         function computeError(this)
-            error('Implement this');
+            % error('Implement this');
+            % Rotation matrix from prior state
+            priorX = this.edgeVertices{1}.x; % x_k,y_k,Psi_k
+
+            c = cos(priorX(3)); % cos(Psi_k))
+            s = sin(priorX(3)); % sin(Psi_k))
+            
+            Mk = [c s 0;
+                -s c 0;
+                0 0 1];
+
+            % Compute the error.
+            this.errorZ = Mk * (this.edgeVertices{2}.x ...
+                - priorX) - this.z;
+            
+            % Wrap the heading error to -pi to pi
+            this.errorZ(3) = g2o.stuff.normalize_theta(this.errorZ(3));
+
         end
         
         % Compute the Jacobians
         function linearizeOplus(this)
-            error('Implement this');
+            % error('Implement this');
+             priorX = this.edgeVertices{1}.x;
+            c = cos(priorX(3));
+            s = sin(priorX(3));
+            dx = this.edgeVertices{2}.x - priorX;
+            Mi = [c s 0;
+                -s c 0;
+                0 0 1];
+            this.J{2} = Mi;
+            this.J{1}(1, 1) = - c;
+            this.J{1}(1, 2) = - s;
+            this.J{1}(1, 3) = -dx(1) * s + dx(2) * c;
+            this.J{1}(2, 1) = s;
+            this.J{1}(2, 2) = - c;
+            this.J{1}(2, 3) = -dx(1) * c - dx(2) * s;
+            this.J{1}(3, 3) = -1;
         end
     end    
 end
