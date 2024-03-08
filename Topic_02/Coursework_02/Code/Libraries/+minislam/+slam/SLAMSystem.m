@@ -58,10 +58,10 @@ classdef SLAMSystem < handle
 
         % Process a cell array which is a sequence of events. Each event is
         % processed in the order it appears in the array.
-        function processEvents(this, eventQueue)
+        function processEvents(DriveBotSLAMSystem_obj, eventQueue)
 
             % Increment the step number
-            this.stepNumber = this.stepNumber + 1;
+            DriveBotSLAMSystem_obj.stepNumber = DriveBotSLAMSystem_obj.stepNumber + 1;
            
             events = eventQueue.events();
             
@@ -75,30 +75,30 @@ classdef SLAMSystem < handle
                     'The object type is %s', class(event));
                 
                 % Now do all the actual work
-                this.processEvent(event);
+                DriveBotSLAMSystem_obj.processEvent(event);
             end
             
             % Handle any post-event activities
-            this.storeStepResults();
+            DriveBotSLAMSystem_obj.storeStepResults();
             
         end
         
         % Process the individual event. If the time of the current event is
         % not the same as the current time in the filter, first take steps
         % to predict the filter state to the current time.
-        function processEvent(this, event)
+        function processEvent(DriveBotSLAMSystem_obj, event)
 
             % If initialized, predict if the timestep length is
             % sufficiently long
-            if (this.initialized == true)
-                dT = event.time() - this.currentTime;
+            if (DriveBotSLAMSystem_obj.initialized == true)
+                dT = event.time() - DriveBotSLAMSystem_obj.currentTime;
 
                 % Nothing to do if it's really close to the last
                 if (abs(dT) < 1e-3)
-                    this.handleNoPrediction();
+                    DriveBotSLAMSystem_obj.handleNoPrediction();
                 else
-                    this.handlePredictToTime(event.time(), dT);        
-                    this.currentTime = event.time();
+                    DriveBotSLAMSystem_obj.handlePredictToTime(event.time(), dT);        
+                    DriveBotSLAMSystem_obj.currentTime = event.time();
                 end
             end
             
@@ -106,30 +106,30 @@ classdef SLAMSystem < handle
             switch(event.type)
                 
                 case minislam.event_types.EventTypes.INITIAL_CONDITION
-                    assert(this.initialized == false)
-                    this.handleInitialConditionEvent(event);
-                    this.initialized = true;
+                    assert(DriveBotSLAMSystem_obj.initialized == false)
+                    DriveBotSLAMSystem_obj.handleInitialConditionEvent(event);
+                    DriveBotSLAMSystem_obj.initialized = true;
                     
                 case minislam.event_types.EventTypes.GPS
-                    if (this.initialized == true)
-                        this.handleGPSObservationEvent(event);
+                    if (DriveBotSLAMSystem_obj.initialized == true)
+                        DriveBotSLAMSystem_obj.handleGPSObservationEvent(event);
                     end
                     
                 case minislam.event_types.EventTypes.COMPASS
-                    if (this.initialized == true)
-                        this.handleCompassObservationEvent(event);
+                    if (DriveBotSLAMSystem_obj.initialized == true)
+                        DriveBotSLAMSystem_obj.handleCompassObservationEvent(event);
                     end
 
                 case minislam.event_types.EventTypes.LANDMARK
-                    if (this.initialized == true)
-                        this.handleLandmarkObservationEvent(event);
+                    if (DriveBotSLAMSystem_obj.initialized == true)
+                        DriveBotSLAMSystem_obj.handleLandmarkObservationEvent(event);
                     end
                     
                 case minislam.event_types.EventTypes.HEARTBEAT
-                    this.handleHeartbeatEvent(event);
+                    DriveBotSLAMSystem_obj.handleHeartbeatEvent(event);
 
                 case minislam.event_types.EventTypes.VEHICLE_ODOMETRY
-                    this.handleVehicleOdometryEvent(event);
+                    DriveBotSLAMSystem_obj.handleVehicleOdometryEvent(event);
 
                 otherwise
                     error('Unknown event type %s', event.type)     

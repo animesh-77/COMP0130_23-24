@@ -27,7 +27,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         % The set of all vertices associated with the vehicle state over
         % time.
         vehicleVertices;
-        vehicleVertexId;
+        vehicleVertexId; % (1,1) total count of vertices
         
         % The set of all prediction edges. These are removed from the graph
         % afterwards if we don't use prediction
@@ -50,7 +50,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
     end
     
     methods(Access = public)
-        
+
         % Create the localization system and start it up.
         function this = DriveBotSLAMSystem(configuration)
             
@@ -123,10 +123,11 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             
             % Extract the graph
             [xS, PS] = this.graph.computeMarginals();
+            % state and covariances
             
             % Create the output array
-            X = zeros(this.NP, this.vehicleVertexId);
-            P = zeros(this.NP, this.vehicleVertexId);
+            X = zeros(this.NP, this.vehicleVertexId); % state vector 1 for each vertes
+            P = zeros(this.NP, this.vehicleVertexId); % 
             T = zeros(1, this.vehicleVertexId);
             
             % Copy the outputs over
@@ -241,39 +242,121 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             % Nothing to do
         end
         
-        function handlePredictToTime(this, time, dT)
+        function handlePredictToTime(DriveBotSLAMSystem_obj, time, dT)
 
             % Create the next vehicle vertex and add it to the graph
             
-            this.currentVehicleVertex = drivebot.graph.VehicleStateVertex(time);
+            % DriveBotSLAMSystem_obj.currentVehicleVertex = drivebot.graph.VehicleStateVertex(time);
+            % DriveBotSLAMSystem_obj.graph.addVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
+            % 
+            % % Q1b:
+            % % Implement prediction code here
+            % 
+            % k = DriveBotSLAMSystem_obj.vehicleVertexId; %% previous vertex in graph
+            % Q = DriveBotSLAMSystem_obj.uCov;
+            % omegaQ = pinv(Q); 
+            % odometry=DriveBotSLAMSystem_obj.u;         
+            % processModelEdge = drivebot.graph.VehicleKinematicsEdge(dT);
+            % processModelEdge.setVertex(1, DriveBotSLAMSystem_obj.vehicleVertices{k});
+            % processModelEdge.setVertex(2, DriveBotSLAMSystem_obj.currentVehicleVertex);
+            % processModelEdge.setMeasurement(odometry);
+            % processModelEdge.setInformation(omegaQ);
+            % DriveBotSLAMSystem_obj.graph.addEdge(processModelEdge);
+            % 
+            % priorX = DriveBotSLAMSystem_obj.vehicleVertices{k}.estimate(); % [xk, yk, psi_k]
+            % c = cos(priorX(3));
+            % s = sin(priorX(3));
+            % 
+            % M = [c, -s, 0;... % Rotation matrix
+            %     s, c, 0;...
+            %     0, 0, 1];
+            % 
+            % predictedX = priorX;
+            % predictedX = predictedX + dT * M * (odometry); % Process model
+            % predictedX(3) = g2o.stuff.normalize_theta(predictedX(3));   % Wrap the heading to -pi to pi
+            % DriveBotSLAMSystem_obj.currentVehicleVertex.setEstimate(predictedX);
+            % 
+            % % warning('drivebotslam:handlepredicttotime:unimplemented', ...
+            % %     'Implement the rest of this method for Q1b.');
+            % 
+            % % Bump the indices
+            % DriveBotSLAMSystem_obj.vehicleVertexId = DriveBotSLAMSystem_obj.vehicleVertexId + 1;
+            % DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId} = DriveBotSLAMSystem_obj.currentVehicleVertex;
+
+
+
+
+            DriveBotSLAMSystem_obj.currentVehicleVertex = drivebot.graph.VehicleStateVertex(time);
+
+            % Create the edge
+            processModelEdge = drivebot.graph.VehicleKinematicsEdge(dT);
+            processModelEdge.setVertex(1, DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId});
+            processModelEdge.setVertex(2, DriveBotSLAMSystem_obj.currentVehicleVertex); 
+            processModelEdge.setMeasurement(DriveBotSLAMSystem_obj.u);
+            processModelEdge.setInformation(inv(DriveBotSLAMSystem_obj.uCov));
+            processModelEdge.initialize();
             
-            % Q1b:
-            % Implement prediction code here
-            warning('drivebotslam:handlepredicttotime:unimplemented', ...
-                'Implement the rest of this method for Q1b.');
+            % adding edge to graph
+            DriveBotSLAMSystem_obj.graph.addEdge(processModelEdge);
+
+            % Add the prediciton to the new vertex
+            DriveBotSLAMSystem_obj.currentVehicleVertex.setEstimate(processModelEdge.vertex(2).estimate());
+
+            % adding the current vehicle vertex to the graph
+            DriveBotSLAMSystem_obj.graph.addVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
+
+            DriveBotSLAMSystem_obj.numProcessModelEdges = DriveBotSLAMSystem_obj.numProcessModelEdges + 1;
+            DriveBotSLAMSystem_obj.processModelEdges{DriveBotSLAMSystem_obj.numProcessModelEdges} = processModelEdge;
+            
+            %warning('drivebotslam:handlepredicttotime:unimplemented', ...
+            %    'Implement the rest of this method for Q1b.');
             
             % Bump the indices
-            this.vehicleVertexId = this.vehicleVertexId + 1;
-            this.vehicleVertices{this.vehicleVertexId} = this.currentVehicleVertex;
+            DriveBotSLAMSystem_obj.vehicleVertexId = DriveBotSLAMSystem_obj.vehicleVertexId + 1;
+            DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId} = DriveBotSLAMSystem_obj.currentVehicleVertex;
+
+
         end
         
-        function handleGPSObservationEvent(this, event)
+        function handleGPSObservationEvent(DriveBotSLAMSystem_obj, event)
 
             % Q1d:
             % Create a GPS measurement edge and add it to the graph
-            warning('drivebotslam:handlegpsobservationevent:unimplemented', ...
-                'Implement the rest of this method for Q1c.');
+            % warning('drivebotslam:handlegpsobservationevent:unimplemented', ...
+            %     'Implement the rest of this method for Q1c.');
+            omegaR = inv(event.covariance);
+            k = DriveBotSLAMSystem_obj.vehicleVertexId;
+            
+            % Create the measurement edge
+            GPSMeasurementEdge_obj = drivebot.graph.GPSMeasurementEdge(...
+                DriveBotSLAMSystem_obj.configuration.gpsPositionOffset);
+
+            % Link it so that it connects to the vertex we want to estimate
+            GPSMeasurementEdge_obj.setVertex(1, DriveBotSLAMSystem_obj.vehicleVertices{k});
+
+            % Set the measurement value and the measurement covariance
+            GPSMeasurementEdge_obj.setMeasurement(event.data);
+            GPSMeasurementEdge_obj.setInformation(omegaR);
+  
+            % Add the edge to the graph
+            DriveBotSLAMSystem_obj.graph.addEdge(GPSMeasurementEdge_obj);
+            
         end
         
-        function handleCompassObservationEvent(this, event)
+        function handleCompassObservationEvent(DriveBotSLAMSystem_obj, event)
             
             % Q1c
             % Create a compass measurement edge and add it to the graph
-            compassMeasurementEdge = drivebot.graph.CompassMeasurementEdge(this.configuration.compassAngularOffset);
-            compassMeasurementEdge.setVertex(1, this.currentVehicleVertex);
-            compassMeasurementEdge.setMeasurement(event.data);
-            compassMeasurementEdge.setInformation(inv(event.covariance));
-            this.graph.addEdge(compassMeasurementEdge);
+            compassMeasurementEdge_obj = drivebot.graph.CompassMeasurementEdge(...
+                DriveBotSLAMSystem_obj.configuration.compassAngularOffset);
+            compassMeasurementEdge_obj.setVertex(1, DriveBotSLAMSystem_obj.currentVehicleVertex);
+            A= event.data;
+            if A > pi || A< -pi
+                error("Need to use normalise theta")
+            end
+            compassMeasurementEdge_obj.setMeasurement(A); % added normalise_theta() here
+            compassMeasurementEdge_obj.setInformation(inv(event.covariance));
+            DriveBotSLAMSystem_obj.graph.addEdge(compassMeasurementEdge_obj);
         end
         
         function handleLandmarkObservationEvent(this, event)

@@ -1,4 +1,4 @@
-function results = mainLoop(eventGenerator, localizationSystems)
+function results = mainLoop(DriveBotSimulator_obj, drivebotSLAMSystem_obj)
 
 % This function runs the main loop for the MiniSLAM system. It sets up the
 % event generator and the localization systems. It sets up the graphics. It
@@ -6,15 +6,15 @@ function results = mainLoop(eventGenerator, localizationSystems)
 
 % Set up the graphics for output
 graphicalOutput = minislam.graphics.GraphicalOutput();
-graphicalOutput.initialize(eventGenerator, localizationSystems);
+graphicalOutput.initialize(DriveBotSimulator_obj, drivebotSLAMSystem_obj);
 
 % Helper to make passing arguments easier
-if (iscell(localizationSystems) == false)
-    localizationSystems = {localizationSystems};
+if (iscell(drivebotSLAMSystem_obj) == false)
+    drivebotSLAMSystem_obj = {drivebotSLAMSystem_obj};
 end
 
 % Get the number of localization systems
-numLocalizationSystems = length(localizationSystems);
+numLocalizationSystems = length(drivebotSLAMSystem_obj);
 
 % Allocate the results structure
 results = cell(numLocalizationSystems, 1);
@@ -23,13 +23,13 @@ for l = 1 : numLocalizationSystems
 end
 
 % Start the event generator
-eventGenerator.start();
+DriveBotSimulator_obj.start();
 
 % Loop until we terminate
-while (eventGenerator.keepRunning() == true)
+while (DriveBotSimulator_obj.keepRunning() == true)
     
     % Get the step number
-    storeCount = eventGenerator.stepCount() + 1;
+    storeCount = DriveBotSimulator_obj.stepCount() + 1;
     
     % Print out
     if (rem(storeCount, 100) == 0)
@@ -37,16 +37,16 @@ while (eventGenerator.keepRunning() == true)
     end
     
     % Get the events and generate the events
-    events = eventGenerator.events();
+    events = DriveBotSimulator_obj.events();
     
     % Log the ground truth
-    groundTruthState = eventGenerator.groundTruth(false);
+    groundTruthState = DriveBotSimulator_obj.groundTruth(false);
     
     % Iterate over all the localization systems and process
     for l = 1 : numLocalizationSystems
         
         % Handle the event for each localization system
-        localizationSystem = localizationSystems{l};    
+        localizationSystem = drivebotSLAMSystem_obj{l};    
         localizationSystem.processEvents(events);
         runOptimizer = localizationSystem.recommendOptimization();
     
@@ -56,14 +56,14 @@ while (eventGenerator.keepRunning() == true)
             chi2 = localizationSystem.optimize();
             results{l}.optimizationTimes(storeCount) = toc;
             results{l}.chi2Time = cat(1, results{l}.chi2Time, ...
-                eventGenerator.time());
+                DriveBotSimulator_obj.time());
             results{l}.chi2History = cat(1, results{l}.chi2History, chi2);
         else
             results{l}.optimizationTimes(storeCount) = NaN;
         end
         
         % Store ground truth in each results structure
-        results{l}.vehicleTrueStateTime(storeCount) = eventGenerator.time();
+        results{l}.vehicleTrueStateTime(storeCount) = DriveBotSimulator_obj.time();
         results{l}.vehicleTrueStateHistory(:, storeCount) = groundTruthState.xTrue;
     end
     
@@ -73,14 +73,14 @@ while (eventGenerator.keepRunning() == true)
         graphicalOutput.update();
     end
     
-    eventGenerator.step();
+    DriveBotSimulator_obj.step();
 end
 
 % Make sure the optimizer is run. Note we do this a bit inefficiently to
 % give feedback via the rendering
 for l = 1 : numLocalizationSystems
-    localizationSystems{l}.optimize(20);
-    [T, X, P] = localizationSystems{l}.platformEstimateHistory();
+    drivebotSLAMSystem_obj{l}.optimize(20);
+    [T, X, P] = drivebotSLAMSystem_obj{l}.platformEstimateHistory();
     results{l}.vehicleStateTime = T;
     results{l}.vehicleStateHistory = X;
     results{l}.vehicleCovarianceHistory = P;
