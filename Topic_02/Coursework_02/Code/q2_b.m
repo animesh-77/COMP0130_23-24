@@ -29,28 +29,37 @@ results = minislam.mainLoop(simulator, drivebotSLAMSystem);
 
 % Minimal output plots. For your answers, please provide titles and label
 % the axes.
+directory= 'Images/q2_b';
+if ~exist(directory, 'dir')
+    mkdir(directory);
+end
 
 % Plot optimisation times
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
 plot(results{1}.vehicleStateTime, results{1}.optimizationTimes, '*')
+saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
 hold on
 
 % Plot the error curves
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
 plot(results{1}.vehicleStateTime, results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
+saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
+hold on
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
 plot(results{1}.vehicleStateTime, results{1}.vehicleCovarianceHistory')
+saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
 hold on
 
 % Plot errors
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
 plot(results{1}.vehicleStateTime, results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
+saveas(gcf, fullfile(directory, 'Errors_2.svg'), 'svg');
 hold on
 
 
@@ -58,6 +67,7 @@ hold on
 minislam.graphics.FigureManager.getFigure('chi2 values');
 clf
 plot(results{1}.chi2Time, results{1}.chi2History)
+saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
 hold on
 
 
