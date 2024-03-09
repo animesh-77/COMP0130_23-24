@@ -52,29 +52,29 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
     methods(Access = public)
 
         % Create the localization system and start it up.
-        function this = DriveBotSLAMSystem(configuration)
+        function DrivebotSLAMSystem_obj = DriveBotSLAMSystem(configuration)
             
             % Call the base class constructor
-            this = this@minislam.slam.SLAMSystem(configuration);
+            DrivebotSLAMSystem_obj = DrivebotSLAMSystem_obj@minislam.slam.SLAMSystem(configuration);
             
             % Preallocate for convenience
-            this.vehicleVertices = cell(1, this.INITIAL_CACHE_SIZE);
+            DrivebotSLAMSystem_obj.vehicleVertices = cell(1, DrivebotSLAMSystem_obj.INITIAL_CACHE_SIZE);
             
             % No vehicle vertices initally set
-            this.vehicleVertexId = 0;
+            DrivebotSLAMSystem_obj.vehicleVertexId = 0;
             
             % The set of prediction edges, initially empty
-            this.processModelEdges = cell(1, this.INITIAL_CACHE_SIZE);
-            this.numProcessModelEdges = 0;
+            DrivebotSLAMSystem_obj.processModelEdges = cell(1, DrivebotSLAMSystem_obj.INITIAL_CACHE_SIZE);
+            DrivebotSLAMSystem_obj.numProcessModelEdges = 0;
             
             % Allocate the landmark map
-            this.landmarkIDStateVectorMap = containers.Map('KeyType', 'int64', 'ValueType', 'any');
+            DrivebotSLAMSystem_obj.landmarkIDStateVectorMap = containers.Map('KeyType', 'int64', 'ValueType', 'any');
             
             % By default, run very infrequently
-            this.recommendOptimizationPeriod = inf;
+            DrivebotSLAMSystem_obj.recommendOptimizationPeriod = inf;
             
-            this.removePredictionEdgesFromGraph = false;
-            this.keepFirstPredictionEdge = false;
+            DrivebotSLAMSystem_obj.removePredictionEdgesFromGraph = false;
+            DrivebotSLAMSystem_obj.keepFirstPredictionEdge = false;
         end
         
         % Destroy the graph when we destroy the SLAM system.

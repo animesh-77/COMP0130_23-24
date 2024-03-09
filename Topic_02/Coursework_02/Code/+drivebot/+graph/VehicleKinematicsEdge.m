@@ -20,6 +20,8 @@
 classdef VehicleKinematicsEdge < g2o.core.BaseBinaryEdge
     
     properties(Access = protected)
+    % properties(Access = public) % we change it so we can see it during
+    % debugging
         % The length of the time step
         dT;
     end
@@ -51,51 +53,58 @@ classdef VehicleKinematicsEdge < g2o.core.BaseBinaryEdge
 
         end
         
-        function computeError(this)
+        function computeError(VehicleKinematicsEdge_obj)
     
             % Q1b:
             % Complete implementation
             % warning('vehiclekinematicsedge:computeerror:unimplemented', ...
             %         'Implement the rest of this method for Q1b.');
             % Rotation matrix from prior state
-            priorX = this.edgeVertices{1}.x;
+            priorX = VehicleKinematicsEdge_obj.edgeVertices{1}.x;
 
             c = cos(priorX(3));
             s = sin(priorX(3));
             
-            Mi = 1/this.dT * [c s 0;
-                            -s c 0;
-                            0 0 1]; % In order to offset the influence of state difference which includes dT
+            Mi =  [c s 0;
+                    -s c 0;
+                    0 0 1]; % Inverse of M = M.T
+            Mi= Mi /VehicleKinematicsEdge_obj.dT;
 
-            dx = this.edgeVertices{2}.x - priorX; % Difference between two consequent states
-            dx(3) = g2o.stuff.normalize_theta(dx(3)); % Every time we have an heading angle, we will wrap it into -pi to pi.
+            dx = VehicleKinematicsEdge_obj.edgeVertices{2}.x - priorX; % Difference between two consequent states
+            dx(3) = g2o.stuff.normalize_theta(dx(3)); % map in the range -pi to pi.
             
-            this.errorZ = Mi * (dx) - this.z;
+            VehicleKinematicsEdge_obj.errorZ = Mi  * (dx) - VehicleKinematicsEdge_obj.z;
 
         end
         
         % Compute the Jacobians
-        function linearizeOplus(this)
+        function linearizeOplus(VehicleKinematicsEdge_obj)
 
             % Q1b:
             % Complete implementation
             % warning('vehiclekinematicsedge:linearizeoplus:unimplemented', ...
             %     'Implement the rest of this method for Q1b.');
-            priorX = this.edgeVertices{1}.x;
+            priorX = VehicleKinematicsEdge_obj.edgeVertices{1}.x;
             c = cos(priorX(3));
             s = sin(priorX(3));
-            dx = this.edgeVertices{2}.x - priorX; % Include dT
-            Mi = 1/this.dT * [c s 0;
+            dx = VehicleKinematicsEdge_obj.edgeVertices{2}.x - priorX; % this is u
+            Mi = [c s 0;
                 -s c 0;
                 0 0 1];
-            this.J{2} = Mi; % towards process noise
-            this.J{1}(1, 1) = - c/this.dT ; % towards each state
-            this.J{1}(1, 2) = - s/this.dT;
-            this.J{1}(1, 3) = (-dx(1) * s + dx(2) * c)/this.dT;
-            this.J{1}(2, 1) = s/this.dT;
-            this.J{1}(2, 2) = - c/this.dT;
-            this.J{1}(2, 3) = (-dx(1) * c - dx(2) * s)/this.dT;
-            this.J{1}(3, 3) = -1/this.dT;
+
+            Mi= Mi/VehicleKinematicsEdge_obj.dT;
+
+
+            VehicleKinematicsEdge_obj.J{2} = Mi; % the Jacobian is inverse of M/dT
+
+
+            VehicleKinematicsEdge_obj.J{1}(1, 1) = - c/VehicleKinematicsEdge_obj.dT ; % towards each state
+            VehicleKinematicsEdge_obj.J{1}(1, 2) = - s/VehicleKinematicsEdge_obj.dT;
+            VehicleKinematicsEdge_obj.J{1}(1, 3) = (-dx(1) * s + dx(2) * c)/VehicleKinematicsEdge_obj.dT;
+            VehicleKinematicsEdge_obj.J{1}(2, 1) = s/VehicleKinematicsEdge_obj.dT;
+            VehicleKinematicsEdge_obj.J{1}(2, 2) = - c/VehicleKinematicsEdge_obj.dT;
+            VehicleKinematicsEdge_obj.J{1}(2, 3) = (-dx(1) * c - dx(2) * s)/VehicleKinematicsEdge_obj.dT;
+            VehicleKinematicsEdge_obj.J{1}(3, 3) = -1/VehicleKinematicsEdge_obj.dT;
 
         end
     end    
