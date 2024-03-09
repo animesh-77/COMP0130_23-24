@@ -359,7 +359,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             DriveBotSLAMSystem_obj.graph.addEdge(compassMeasurementEdge_obj);
         end
         
-        function handleLandmarkObservationEvent(this, event)
+        function handleLandmarkObservationEvent(DriveBotSLAMSystem_obj, event)
             
             % Iterate over all the landmark measurements
             for l = 1 : length(event.landmarkIds)
@@ -367,15 +367,28 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                 % Get the landmark vertex associated with this measurement.
                 % If necessary, a new landmark vertex is created and added
                 % to the graph.
-                [landmarkVertex, newVertexCreated] = this.createOrGetLandmark(event.landmarkIds(l));
+                [landmarkVertex, newVertexCreated] = DriveBotSLAMSystem_obj.createOrGetLandmark(event.landmarkIds(l));
                 z = event.data(:, l);
 
                 % Q2b:
                 % Complete the implementation
-                warning('drivebotslamsystem:handlelandmarkobservationevent:unimplemented', ...
-                    'Implement the rest of this method for Q2b.');
+                % warning('drivebotslamsystem:handlelandmarkobservationevent:unimplemented', ...
+                %     'Implement the rest of this method for Q2b.');
+
+
+                % Add the measurement edge
+                landmarkRangeBearingEdge = drivebot.graph.LandmarkRangeBearingEdge();
+                landmarkRangeBearingEdge.setVertex(1, DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId});
+                landmarkRangeBearingEdge.setVertex(2, landmarkVertex);
+                landmarkRangeBearingEdge.setMeasurement(z);
+                landmarkRangeBearingEdge.setInformation(inv(event.covariance));
+
+                if (newVertexCreated == true)
+                    landmarkRangeBearingEdge.initialize();
+                end
                 
-                this.graph.addEdge(landmarkRangeBearingEdge);
+                
+                DriveBotSLAMSystem_obj.graph.addEdge(landmarkRangeBearingEdge);
             end
         end
         
