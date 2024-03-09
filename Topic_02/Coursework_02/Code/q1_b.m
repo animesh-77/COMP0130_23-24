@@ -35,6 +35,10 @@ results = minislam.mainLoop(DriveBotSimulator_obj, DrivebotSLAMSystem_obj);
 % Minimal output plots. These just show you an example of how to plot the
 % results. For your report, you need to look at improving these figures
 % including labelling axes, etc.
+directory= 'Images/q1_b';
+if ~exist(directory, 'dir')
+    mkdir(directory);
+end
 
 % Plot optimisation times
 % If DrivebotSLAMSystem_obj.setRecommendOptimizationPeriod() not used then
@@ -42,6 +46,7 @@ results = minislam.mainLoop(DriveBotSimulator_obj, DrivebotSLAMSystem_obj);
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
 plot(results{1}.vehicleStateTime, results{1}.optimizationTimes, '*')
+saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
 hold on
 
 % Plot the error curves
@@ -49,11 +54,13 @@ minislam.graphics.FigureManager.getFigure('Errors');
 clf
 plot(results{1}.vehicleStateTime, results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
 legend('x','y','psi')
+saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
+hold on
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
 plot(results{1}.vehicleStateTime, results{1}.vehicleCovarianceHistory')
 legend('x','y','psi')
+saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
 hold on
-
