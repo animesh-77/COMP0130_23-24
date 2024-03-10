@@ -33,34 +33,51 @@ drivebotSLAMSystem.setRecommendOptimizationPeriod(500);
 % Set whether the SLAM system should remove prediction edges. If the first
 % value is true, the SLAM system should remove the edges. If the second is
 % true, the first prediction edge will be retained.
-drivebotSLAMSystem.setRemovePredictionEdges(false, true);
+retain_first= false;
+drivebotSLAMSystem.setRemovePredictionEdges(false, retain_first);
 
 % Run the main loop and correct results
 results = minislam.mainLoop(simulator, drivebotSLAMSystem);
 
 % Minimal output plots. For your answers, please provide titles and label
 % the axes.
+if retain_first == true
+    directory= 'Images/q3_a/retain_first';
+else
+    directory= 'Images/q3_a/no_retain';
+end
+
+if ~exist(directory, 'dir')
+    mkdir(directory);
+end
+
 
 % Plot optimisation times
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
 plot(results{1}.optimizationTimes, '*')
+saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
 hold on
 
 % Plot the error curves
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
 plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
+saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
+hold on
+
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
 plot(results{1}.vehicleCovarianceHistory')
+saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
 hold on
 
 % Plot errors
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
 plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
+saveas(gcf, fullfile(directory, 'Errors_2.svg'), 'svg');
 hold on
 

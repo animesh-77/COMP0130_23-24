@@ -46,6 +46,10 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         % question Q3a
         removePredictionEdgesFromGraph;
         keepFirstPredictionEdge;
+
+        % Q3b -- attribute that when set to be true calls for graph pruning
+        % to take place 
+        graphPrune = false;
         
     end
     
@@ -200,6 +204,10 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             this.keepFirstPredictionEdge = keepFirst;
             
         end
+
+        function setGraphPruning(DriveBotSLAMSystem_obj, toPruneOrNot)
+            DriveBotSLAMSystem_obj.graphPrune = toPruneOrNot;
+        end 
     end
     
     % These are the methods you will need to overload
@@ -392,11 +400,57 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             end
         end
         
-        function deleteVehiclePredictionEdges(this)
+        function deleteVehiclePredictionEdges(DriveBotSLAMSystem_obj)
 
             % Q3a:            
-            warning('drivebotslam:deletevehiclepredictionedges:unimplemented', ...
-                'Implement the rest of this method for Q3a.');
+            % warning('drivebotslam:deletevehiclepredictionedges:unimplemented', ...
+            %     'Implement the rest of this method for Q3a.');
+            
+            if DriveBotSLAMSystem_obj.graphPrune == true
+                
+                % if we have stated for graph pruning to take place, run
+                % the function to do so 
+                DriveBotSLAMSystem_obj.graphPruning()
+                
+                return  
+            end 
+
+            % find the number of edges 
+            edges = DriveBotSLAMSystem_obj.graph.edges();
+            numOfEdges = length(edges);
+            fprintf('Initial number of edges %d',numOfEdges)
+
+            % initialise the edge count 
+            count = 0;
+            deletedEdges = 0;
+
+            % loop through all the edges and delete them all 
+            for i = 1:numOfEdges
+                
+                % check if it's a prediction edge 
+                if class(edges{i}) == "drivebot.VehicleKinematicsEdge"
+                    count = count + 1;
+
+                    % check if we need to keep the first edge 
+                    if (DriveBotSLAMSystem_obj.keepFirstPredictionEdge == true && count == 1)
+
+                        % if we need to keep the first edge, move onto the
+                        % next one without deleting the first                         
+                        continue 
+                        
+                    else 
+                       % otherwise, remove the current edges 
+                        DriveBotSLAMSystem_obj.graph.removeEdge(edges{i});
+                        
+                        deletedEdges = deletedEdges + 1;
+                        
+                    end 
+                        
+                end  
+                
+            end 
+
+            fprintf('Number of deleted edges %d',deletedEdges)
         end
         
         
@@ -428,5 +482,89 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             % Nothing
         end
         
+        function graphPruning(this)            
+            edges = this.graph.edges();
+            
+            numEdges = length(edges);
+            
+            vertices = this.graph.vertices();
+            
+            numVertices = length(vertices);            
+            
+            obsEdgeCount = 0; 
+            
+            actualNumVertices = 0; 
+            removedEdges = 0;
+            
+            for i = 1:numVertices % loop through all vertices 
+                
+                vertex = this.vehicleVertices{i};         
+                
+                if class(vertex) == "drivebot.VehicleStateVertex"
+                    
+                    actualNumVertices = actualNumVertices + 1;
+                    
+                    vertexEdges = vertex.edges();
+                    
+                    numVertexEdges = length(vertexEdges);
+                    
+                    for j = 1:numVertexEdges 
+                        
+                        if class(vertexEdges{j}) == "drivebot.LandmarkRangeBearingEdge"
+                            obsEdgeCount = obsEdgeCount + 1;
+                            
+                        end 
+                    end
+                end 
+                                   
+            end
+            
+            actualNumVertices;
+            
+            avgObsEdges = round(obsEdgeCount / actualNumVertices); 
+         
+            for i = 1:numVertices 
+                obsEdgeCount = 0;      
+
+                vertex = this.vehicleVertices{i};
+                if class(vertex) == "drivebot.VehicleStateVertex"
+                    
+                    % find cell of all edges for this vertex 
+                    vertexEdges = vertex.edges();
+                    numVertexEdges = length(vertexEdges);
+                        
+                    % loop through all edges and count the number of
+                    % observation edges 
+                     for j = 1:numVertexEdges 
+                        thisEdge = vertexEdges{j};
+
+                        if class(thisEdge) == "drivebot.LandmarkRangeBearingEdge"
+                            
+                            obsEdgeCount = obsEdgeCount + 1; 
+                       
+                        end 
+                     end
+                     
+                     if obsEdgeCount < avgObsEdges && (i ~= 1) && (i ~=2)
+                         
+                         for k = 1:numVertexEdges 
+                            thisEdge = vertexEdges{k};
+                            this.graph.removeEdge(thisEdge);
+
+                            % increment number of removed edges 
+                            removedEdges = removedEdges + 1;
+
+                        end 
+                         
+                         
+                     end 
+                     
+                end 
+            end
+            
+        removedEdges 
+        length(this.graph.edges())
+
+        end
     end
 end
