@@ -215,30 +215,30 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         
         % Handle the initial condition
         
-        function handleInitialConditionEvent(this, event)
+        function handleInitialConditionEvent(DriveBotSLAMSystem_obj, event)
             
             % Create the first vertex, set its estimate to the initial
             % value and add it to the graph.
-            this.currentVehicleVertex = drivebot.graph.VehicleStateVertex(this.currentTime);
-            this.currentVehicleVertex.setEstimate(event.data);
-            this.graph.addVertex(this.currentVehicleVertex);
+            DriveBotSLAMSystem_obj.currentVehicleVertex = drivebot.graph.VehicleStateVertex(DriveBotSLAMSystem_obj.currentTime);
+            DriveBotSLAMSystem_obj.currentVehicleVertex.setEstimate(event.data);
+            DriveBotSLAMSystem_obj.graph.addVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
             
             % Set the book keeping for this initial vertex.
-            this.vehicleVertexId = 1;
-            this.vehicleVertices{this.vehicleVertexId} = this.currentVehicleVertex;
+            DriveBotSLAMSystem_obj.vehicleVertexId = 1;
+            DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId} = DriveBotSLAMSystem_obj.currentVehicleVertex;
             
             % If the covariance is 0, the vertex is known perfectly and so
             % we set it as fixed. If the covariance is non-zero, add a
             % unary initial prior condition edge instead. This adds a soft
             % constraint on where the state can be.
             if (det(event.covariance) < 1e-6)
-                this.currentVehicleVertex.setFixed(true);
+                DriveBotSLAMSystem_obj.currentVehicleVertex.setFixed(true);
             else
                 initialPriorEdge = drivebot.graph.InitialPriorEdge();
                 initialPriorEdge.setMeasurement(event.data);
                 initialPriorEdge.setInformation(inv(event.covariance));
-                initialPriorEdge.setVertex(this.currentVehicleVertex);
-                this.graph.addEdge(initialPriorEdge);
+                initialPriorEdge.setVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
+                DriveBotSLAMSystem_obj.graph.addEdge(initialPriorEdge);
             end
         end
         

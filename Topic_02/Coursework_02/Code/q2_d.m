@@ -45,6 +45,12 @@ if ~exist(directory, 'dir')
     mkdir(directory);
 end
 
+% save the map before loop closure
+minislam.graphics.FigureManager.getFigure('Simulator Output');
+saveas(gcf, fullfile(directory, 'map_before.svg'), 'svg');
+
+
+
 % Plot optimisation times.
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
@@ -128,6 +134,12 @@ directory= 'Images/q2_d';
 if ~exist(directory, 'dir')
     mkdir(directory);
 end
+
+
+% save the map after loop closure
+minislam.graphics.FigureManager.getFigure('Simulator Output');
+saveas(gcf, fullfile(directory, 'map_after.svg'), 'svg');
+
 
 % Plot optimisation times.
 minislam.graphics.FigureManager.getFigure('Optimization times');
