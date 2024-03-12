@@ -34,7 +34,7 @@ drivebotSLAMSystem.setRecommendOptimizationPeriod(500);
 % value is true, the SLAM system should remove the edges. If the second is
 % true, the first prediction edge will be retained.
 retain_first= false;
-drivebotSLAMSystem.setRemovePredictionEdges(false, retain_first);
+drivebotSLAMSystem.setRemovePredictionEdges(true, retain_first);
 
 % Run the main loop and correct results
 results = minislam.mainLoop(simulator, drivebotSLAMSystem);
