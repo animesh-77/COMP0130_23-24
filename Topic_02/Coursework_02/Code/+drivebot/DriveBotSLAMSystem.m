@@ -253,48 +253,8 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         function handlePredictToTime(DriveBotSLAMSystem_obj, time, dT)
 
             % Create the next vehicle vertex and add it to the graph
-            
-            % DriveBotSLAMSystem_obj.currentVehicleVertex = drivebot.graph.VehicleStateVertex(time);
-            % DriveBotSLAMSystem_obj.graph.addVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
-            % 
-            % % Q1b:
-            % % Implement prediction code here
-            % 
-            % k = DriveBotSLAMSystem_obj.vehicleVertexId; %% previous vertex in graph
-            % Q = DriveBotSLAMSystem_obj.uCov;
-            % omegaQ = pinv(Q); 
-            % odometry=DriveBotSLAMSystem_obj.u;         
-            % processModelEdge = drivebot.graph.VehicleKinematicsEdge(dT);
-            % processModelEdge.setVertex(1, DriveBotSLAMSystem_obj.vehicleVertices{k});
-            % processModelEdge.setVertex(2, DriveBotSLAMSystem_obj.currentVehicleVertex);
-            % processModelEdge.setMeasurement(odometry);
-            % processModelEdge.setInformation(omegaQ);
-            % DriveBotSLAMSystem_obj.graph.addEdge(processModelEdge);
-            % 
-            % priorX = DriveBotSLAMSystem_obj.vehicleVertices{k}.estimate(); % [xk, yk, psi_k]
-            % c = cos(priorX(3));
-            % s = sin(priorX(3));
-            % 
-            % M = [c, -s, 0;... % Rotation matrix
-            %     s, c, 0;...
-            %     0, 0, 1];
-            % 
-            % predictedX = priorX;
-            % predictedX = predictedX + dT * M * (odometry); % Process model
-            % predictedX(3) = g2o.stuff.normalize_theta(predictedX(3));   % Wrap the heading to -pi to pi
-            % DriveBotSLAMSystem_obj.currentVehicleVertex.setEstimate(predictedX);
-            % 
-            % % warning('drivebotslam:handlepredicttotime:unimplemented', ...
-            % %     'Implement the rest of this method for Q1b.');
-            % 
-            % % Bump the indices
-            % DriveBotSLAMSystem_obj.vehicleVertexId = DriveBotSLAMSystem_obj.vehicleVertexId + 1;
-            % DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId} = DriveBotSLAMSystem_obj.currentVehicleVertex;
-
-
-
-
             DriveBotSLAMSystem_obj.currentVehicleVertex = drivebot.graph.VehicleStateVertex(time);
+            % DriveBotSLAMSystem_obj.graph.addVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
 
             % Create the edge
             processModelEdge = drivebot.graph.VehicleKinematicsEdge(dT);
