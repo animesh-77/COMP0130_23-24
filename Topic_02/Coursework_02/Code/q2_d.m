@@ -15,7 +15,8 @@ configuration_obj.perturbWithNoise = false;
 % Set this value to truncate the run at a specified timestep rather than
 % run through the whole simulation to its end
 % here we go to the timestep just before loop closure
-configuration_obj.maximumStepNumber = 1205;
+last_step= 1207; % last timestep before loop closure
+configuration_obj.maximumStepNumber = last_step;
 
 % Set up the simulator
 DriveBotSimulator_obj = drivebot.DriveBotSimulator(configuration_obj, 'q2_d');
@@ -52,39 +53,60 @@ saveas(gcf, fullfile(directory, 'map_before.svg'), 'svg');
 
 
 % Plot optimisation times.
-minislam.graphics.FigureManager.getFigure('Optimization times');
-clf
-plot(results{1}.optimizationTimes, '*')
-saveas(gcf, fullfile(directory, 'Optimisation_times_before.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('Optimization times');
+% clf
+% plot(results{1}.optimizationTimes, '*')
+% saveas(gcf, fullfile(directory, 'Optimisation_times_before.svg'), 'svg');
+% hold on
 
-% Plot the error curves.
-minislam.graphics.FigureManager.getFigure('Errors');
-clf
-plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-saveas(gcf, fullfile(directory, 'Errors_before.svg'), 'svg');
-hold on
+% % Plot the error curves.
+% minislam.graphics.FigureManager.getFigure('Errors');
+% clf
+% plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
+% saveas(gcf, fullfile(directory, 'Errors_before.svg'), 'svg');
+% hold on
 
-% Plot covariance.
+% Plot vehicle covariance.
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
-plot(results{1}.vehicleCovarianceHistory')
-saveas(gcf, fullfile(directory, 'Vehicle_covariances_before.svg'), 'svg');
+veh_cov_vals= results{1}.vehicleCovarianceHistory' ;% (N,3) matrix
+plot(veh_cov_vals)
 hold on
+title("Before loop closure")
+text(last_step, veh_cov_vals(end,1), ['cov(x)', num2str(veh_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(last_step, veh_cov_vals(end,2), ['cov(y)', num2str(veh_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(last_step, veh_cov_vals(end,3), ['cov(psi)', num2str(veh_cov_vals(end,3))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+legend('x','y','psi')
+legend('Location', 'northwest');
+saveas(gcf, fullfile(directory, 'Vehicle_covariances_before.svg'), 'svg');
+
+
+% Plot vehicle covariance.
+minislam.graphics.FigureManager.getFigure('Landmark Covariances');
+clf
+land_cov_vals= results{1}.vehicleCovarianceHistory' ;% (N,2) matrix
+plot(land_cov_vals)
+hold on
+text(last_step, land_cov_vals(end,1), ['cov(x)', num2str(land_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(last_step, land_cov_vals(end,2), ['cov(y)', num2str(land_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+legend('x','y','psi')
+legend('Location', 'northwest');
+saveas(gcf, fullfile(directory, 'landmark_covariances_before.svg'), 'svg');
+
 
 % Plot errors.
-minislam.graphics.FigureManager.getFigure('Errors');
-clf
-plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-saveas(gcf, fullfile(directory, 'Errors2_before.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('Errors');
+% clf
+% plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
+% saveas(gcf, fullfile(directory, 'Errors2_before.svg'), 'svg');
+% hold on
 
 % Plot chi2 values.
-minislam.graphics.FigureManager.getFigure('chi2 values');
-clf
-plot(results{1}.chi2Time, results{1}.chi2History)
-saveas(gcf, fullfile(directory, 'Chi2_before.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('chi2 values');
+% clf
+% plot(results{1}.chi2Time, results{1}.chi2History)
+% saveas(gcf, fullfile(directory, 'Chi2_before.svg'), 'svg');
+% hold on
 
 
 
@@ -105,7 +127,7 @@ configuration_obj.perturbWithNoise = false;
 % Set this value to truncate the run at a specified timestep rather than
 % run through the whole simulation to its end
 % here we go to the timestep just after loop closure
-configuration_obj.maximumStepNumber = 1208;
+configuration_obj.maximumStepNumber = last_step+1;
 
 % Set up the simulator
 DriveBotSimulator_obj = drivebot.DriveBotSimulator(configuration_obj, 'q2_d');
@@ -142,37 +164,45 @@ saveas(gcf, fullfile(directory, 'map_after.svg'), 'svg');
 
 
 % Plot optimisation times.
-minislam.graphics.FigureManager.getFigure('Optimization times');
-clf
-plot(results{1}.optimizationTimes, '*')
-saveas(gcf, fullfile(directory, 'Optimisation_times_after.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('Optimization times');
+% clf
+% plot(results{1}.optimizationTimes, '*')
+% saveas(gcf, fullfile(directory, 'Optimisation_times_after.svg'), 'svg');
+% hold on
 
 % Plot the error curves.
-minislam.graphics.FigureManager.getFigure('Errors');
-clf
-plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-saveas(gcf, fullfile(directory, 'Errors_after.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('Errors');
+% clf
+% plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
+% saveas(gcf, fullfile(directory, 'Errors_after.svg'), 'svg');
+% hold on
 
 % Plot covariance.
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
-plot(results{1}.vehicleCovarianceHistory')
+veh_cov_vals= results{1}.vehicleCovarianceHistory';
+plot(veh_cov_vals)
+hold on
+title("After loop closure")
+text(last_step, veh_cov_vals(end,1), ['cov(x)', num2str(veh_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(last_step, veh_cov_vals(end,2), ['cov(y)', num2str(veh_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(last_step, veh_cov_vals(end,3), ['cov(psi)', num2str(veh_cov_vals(end,3))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+legend('x','y','psi')
+legend('Location', 'northwest');
 saveas(gcf, fullfile(directory, 'Vehicle_covariances_after.svg'), 'svg');
 hold on
 
 % Plot errors.
-minislam.graphics.FigureManager.getFigure('Errors');
-clf
-plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-saveas(gcf, fullfile(directory, 'Errors2_after.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('Errors');
+% clf
+% plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
+% saveas(gcf, fullfile(directory, 'Errors2_after.svg'), 'svg');
+% hold on
 
 % Plot chi2 values.
-minislam.graphics.FigureManager.getFigure('chi2 values');
-clf
-plot(results{1}.chi2Time, results{1}.chi2History)
-saveas(gcf, fullfile(directory, 'Chi2_after.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('chi2 values');
+% clf
+% plot(results{1}.chi2Time, results{1}.chi2History)
+% saveas(gcf, fullfile(directory, 'Chi2_after.svg'), 'svg');
+% hold on
 
