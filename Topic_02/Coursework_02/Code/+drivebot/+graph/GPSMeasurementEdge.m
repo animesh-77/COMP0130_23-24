@@ -13,23 +13,41 @@ classdef GPSMeasurementEdge < g2o.core.BaseUnaryEdge
             this.xyOffset = xyOffset;
         end
         
-        function computeError(this)
+        function computeError(VehicleKinematicsEdge_obj)
 
 	    % Q1d:
         % Implement the code
         % warning('gpsmeasurementedge:computeerror:unimplemented', ...
         %         'Implement the rest of this method for Q1d.');
-        x = this.edgeVertices{1}.estimate();
-        this.errorZ = x(1:2) - this.z;
+        priorX = VehicleKinematicsEdge_obj.edgeVertices{1}.x;
+
+        c = cos(priorX(3));
+        s = sin(priorX(3));
+        
+        M = [c -s;
+            s c];
+
+        VehicleKinematicsEdge_obj.errorZ = VehicleKinematicsEdge_obj.z-...
+            priorX(1:2)- M*VehicleKinematicsEdge_obj.xyOffset;
         end
         
-        function linearizeOplus(this)
+        function linearizeOplus(VehicleKinematicsEdge_obj)
 
 	    % Q1d:
         % Implement the code
         % warning('gpsmeasurementedge:lineareizeoplus:unimplemented', ...
         %         'Implement the rest of this method for Q1d.');
-        this.J{1}=[1 0 0;0 1 0] ;
+        priorX = VehicleKinematicsEdge_obj.edgeVertices{1}.x;
+
+        c = cos(priorX(3));
+        s = sin(priorX(3));
+        
+        dx_g= VehicleKinematicsEdge_obj.xyOffset(1);
+        dy_g= VehicleKinematicsEdge_obj.xyOffset(2);
+
+        VehicleKinematicsEdge_obj.J{1}=...
+            [-1 0 s*dx_g+c*dy_g;...
+              0 -1 c*dx_g+s*dy_g] ;
         end
     end
 end

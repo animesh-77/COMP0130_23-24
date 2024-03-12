@@ -17,15 +17,15 @@ classdef CompassMeasurementEdge < g2o.core.BaseUnaryEdge
             CompassMeasurementEdge_obj.compassAngularOffset = compassAngularOffset;
         end
         
-        function computeError(this)
-            x = this.edgeVertices{1}.estimate();
-            this.errorZ = g2o.stuff.normalize_theta(...
-                x(3) + this.compassAngularOffset - this.z); % normalize_theta implemented here
+        function computeError(CompassMeasurementEdge_obj)
+            x = CompassMeasurementEdge_obj.edgeVertices{1}.estimate();
+            CompassMeasurementEdge_obj.errorZ = g2o.stuff.normalize_theta(...
+                CompassMeasurementEdge_obj.z - x(3) - CompassMeasurementEdge_obj.compassAngularOffset); % normalize_theta implemented here
             % this.errorZ = x(3) + this.compassAngularOffset - this.z; % Without normalize_theta 
         end
         
         function linearizeOplus(this)
-            this.J{1} = [0 0 1];
+            this.J{1} = [0 0 -1];
         end        
     end
 end
