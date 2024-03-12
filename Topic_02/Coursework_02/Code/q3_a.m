@@ -33,7 +33,7 @@ drivebotSLAMSystem.setRecommendOptimizationPeriod(500);
 % Set whether the SLAM system should remove prediction edges. If the first
 % value is true, the SLAM system should remove the edges. If the second is
 % true, the first prediction edge will be retained.
-retain_first= false;
+retain_first= true;
 drivebotSLAMSystem.setRemovePredictionEdges(true, retain_first);
 
 % Run the main loop and correct results
@@ -56,28 +56,44 @@ end
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
 plot(results{1}.optimizationTimes, '*')
-saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
 hold on
+xlabel('Timestep')
+saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
+
 
 % Plot the error curves
-minislam.graphics.FigureManager.getFigure('Errors');
-clf
-plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
-hold on
+% minislam.graphics.FigureManager.getFigure('Errors');
+% clf
+% plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
+% hold on
+% legend('x','y','psi')
+% legend('Location', 'northwest');
+% saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
 
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
 plot(results{1}.vehicleCovarianceHistory')
+hold on
+legend('x','y','psi')
+xlabel('Timestep')
 saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
-hold on
 
-% Plot errors
-minislam.graphics.FigureManager.getFigure('Errors');
+% % Plot errors
+% minislam.graphics.FigureManager.getFigure('Errors');
+% clf
+% plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
+% hold on
+% legend('x','y','psi')
+% legend('Location', 'northwest');
+% saveas(gcf, fullfile(directory, 'Errors2.svg'), 'svg');
+
+% Plot chi2 values.
+minislam.graphics.FigureManager.getFigure('chi2 values');
 clf
-plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-saveas(gcf, fullfile(directory, 'Errors_2.svg'), 'svg');
+plot(results{1}.chi2Time, results{1}.chi2History)
 hold on
+xlabel('Timestep')
+saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
 
