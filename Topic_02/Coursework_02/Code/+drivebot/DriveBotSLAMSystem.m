@@ -184,8 +184,16 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         % logic here
         function chi2 = optimize(this, maximumNumberOfOptimizationSteps)
             
+
+            if (this.graphPrune)
+                % if we have stated for graph pruning to take place, run
+                % the function to do so 
+                this.graphPruning()
+            end
+
+
             % Remove the prediction edges if requested.
-            if (this.removePredictionEdgesFromGraph == true)
+            if (this.removePredictionEdgesFromGraph)
                 this.deleteVehiclePredictionEdges();
             end
             
@@ -365,20 +373,12 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             % Q3a:            
             % warning('drivebotslam:deletevehiclepredictionedges:unimplemented', ...
             %     'Implement the rest of this method for Q3a.');
-            
-            if DriveBotSLAMSystem_obj.graphPrune == true
-                
-                % if we have stated for graph pruning to take place, run
-                % the function to do so 
-                DriveBotSLAMSystem_obj.graphPruning()
-                
-                return  
-            end 
+             
 
             % find the number of edges 
             edges = DriveBotSLAMSystem_obj.graph.edges();
             numOfEdges = length(edges);
-            fprintf('Initial number of edges %d',numOfEdges)
+            fprintf('Initial number of edges %d \n',numOfEdges)
 
             % initialise the edge count 
             count = 0;
@@ -388,7 +388,8 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             for i = 1:numOfEdges
                 
                 % check if it's a prediction edge 
-                if class(edges{i}) == "drivebot.VehicleKinematicsEdge"
+                % if class(edges{i}) == "drivebot.graph.VehicleKinematicsEdge"
+                if isa(edges{i}, 'drivebot.graph.VehicleKinematicsEdge')
                     count = count + 1;
 
                     % check if we need to keep the first edge 
@@ -399,7 +400,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                         continue 
                         
                     else 
-                       % otherwise, remove the current edges 
+                       % otherwise, remove the current vehicle kinematics edge
                         DriveBotSLAMSystem_obj.graph.removeEdge(edges{i});
                         
                         deletedEdges = deletedEdges + 1;
@@ -410,7 +411,11 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                 
             end 
 
-            fprintf('Number of deleted edges %d',deletedEdges)
+            fprintf('Number of deleted edges %d \n',deletedEdges)
+
+            edges = DriveBotSLAMSystem_obj.graph.edges();
+            numOfEdges = length(edges);
+            fprintf('Final number of edges %d \n',numOfEdges)
         end
         
         
@@ -446,6 +451,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             edges = this.graph.edges();
             
             numEdges = length(edges);
+            fprintf("No. of vertices before graph pruning %d \n", numEdges)
             
             vertices = this.graph.vertices();
             
@@ -460,7 +466,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                 
                 vertex = this.vehicleVertices{i};         
                 
-                if class(vertex) == "drivebot.VehicleStateVertex"
+                if isa(vertex,"drivebot.graph.VehicleStateVertex")
                     
                     actualNumVertices = actualNumVertices + 1;
                     
@@ -470,7 +476,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                     
                     for j = 1:numVertexEdges 
                         
-                        if class(vertexEdges{j}) == "drivebot.LandmarkRangeBearingEdge"
+                        if isa(vertexEdges{j}, "drivebot.graph.LandmarkRangeBearingEdge")
                             obsEdgeCount = obsEdgeCount + 1;
                             
                         end 
@@ -522,8 +528,9 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                 end 
             end
             
-        removedEdges 
-        length(this.graph.edges())
+        removedEdges ;
+        numEdges = length(edges);
+        fprintf("No. of vertices after graph pruning %d \n", numEdges)
 
         end
     end
