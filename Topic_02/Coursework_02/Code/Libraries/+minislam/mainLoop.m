@@ -82,7 +82,7 @@ end
 
 for l = 1 : numLocalizationSystems
     % Get the localization system
-    localizationSystem = localizationSystems{l};  
+    localizationSystem = drivebotSLAMSystem_obj{l};  
     % If recommend optimization was true, we optimized the graph before the
     % while loop ended and so there was nothing to do. Therfore, if
     % recomment Optimization() is false, the localization system might
@@ -93,7 +93,7 @@ for l = 1 : numLocalizationSystems
         chi2 = localizationSystem.optimize(20);
         results{l}.optimizationTimes(storeCount) = toc;
         results{l}.chi2Time = cat(1, results{l}.chi2Time, ...
-            eventGenerator.time());
+            DriveBotSimulator_obj.time());
         results{l}.chi2History = cat(1, results{l}.chi2History, chi2);
     end
     [T, X, P] = localizationSystem.platformEstimateHistory();
