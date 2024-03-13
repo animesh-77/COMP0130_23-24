@@ -59,13 +59,6 @@ saveas(gcf, fullfile(directory, 'map_before.svg'), 'svg');
 % saveas(gcf, fullfile(directory, 'Optimisation_times_before.svg'), 'svg');
 % hold on
 
-% % Plot the error curves.
-% minislam.graphics.FigureManager.getFigure('Errors');
-% clf
-% plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-% saveas(gcf, fullfile(directory, 'Errors_before.svg'), 'svg');
-% hold on
-
 % Plot vehicle covariance.
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
@@ -98,7 +91,7 @@ saveas(gcf, fullfile(directory, 'Vehicle_covariances_before.svg'), 'svg');
 % minislam.graphics.FigureManager.getFigure('Errors');
 % clf
 % plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-% saveas(gcf, fullfile(directory, 'Errors2_before.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Errors_before.svg'), 'svg');
 % hold on
 
 % Plot chi2 values.
@@ -170,13 +163,6 @@ saveas(gcf, fullfile(directory, 'map_after.svg'), 'svg');
 % saveas(gcf, fullfile(directory, 'Optimisation_times_after.svg'), 'svg');
 % hold on
 
-% Plot the error curves.
-% minislam.graphics.FigureManager.getFigure('Errors');
-% clf
-% plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-% saveas(gcf, fullfile(directory, 'Errors_after.svg'), 'svg');
-% hold on
-
 % Plot covariance.
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
@@ -196,7 +182,7 @@ hold on
 % minislam.graphics.FigureManager.getFigure('Errors');
 % clf
 % plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-% saveas(gcf, fullfile(directory, 'Errors2_after.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Errors_after.svg'), 'svg');
 % hold on
 
 % Plot chi2 values.
