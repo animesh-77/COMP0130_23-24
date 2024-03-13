@@ -43,7 +43,6 @@ hold on
 title('Optimization times')
 xlabel('Timestep')
 ylabel('Optimisation Time (sec)')
-saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
 saveas(gcf, fullfile(directory, 'Optimisation_times.png'), 'png');
 
 % Plot the error curves
@@ -59,7 +58,6 @@ legend('Location', 'best');
 title('Errors')
 xlabel('Timestep')
 ylabel('error')
-saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
 saveas(gcf, fullfile(directory, 'Errors.png'), 'png');
 
 
@@ -73,7 +71,6 @@ legend('Location', 'best');
 xlabel('Timestep')
 title('Vehicle Covariances')
 ylabel('covariance')
-saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
 saveas(gcf, fullfile(directory, 'Vehicle_covariances.png'), 'png');
 hold on
 
@@ -87,7 +84,6 @@ for log_chi= [true, false]
         title('log(Chi2) values')
         ylabel('log(Chi2) Value')
         xlabel('Timestep')
-        saveas(gcf, fullfile(directory, 'log_Chi2.svg'), 'svg');
         saveas(gcf, fullfile(directory, 'log_Chi2.png'), 'png');
 
     else
@@ -95,7 +91,6 @@ for log_chi= [true, false]
         title('Chi2 values')
         ylabel('Chi2 Value')
         xlabel('Timestep')
-        saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
         saveas(gcf, fullfile(directory, 'Chi2.png'), 'png');
     end
 end

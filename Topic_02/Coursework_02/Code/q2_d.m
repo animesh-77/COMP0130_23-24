@@ -48,7 +48,7 @@ end
 
 % save the map before loop closure
 minislam.graphics.FigureManager.getFigure('Simulator Output');
-saveas(gcf, fullfile(directory, 'map_before.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'map_before.png'), 'png');
 
 
 
@@ -56,7 +56,7 @@ saveas(gcf, fullfile(directory, 'map_before.svg'), 'svg');
 % minislam.graphics.FigureManager.getFigure('Optimization times');
 % clf
 % plot(results{1}.optimizationTimes, '*')
-% saveas(gcf, fullfile(directory, 'Optimisation_times_before.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Optimisation_times_before.png'), 'png');
 % hold on
 
 % Plot vehicle covariance.
@@ -71,7 +71,7 @@ text(last_step, veh_cov_vals(end,2), ['cov(y)', num2str(veh_cov_vals(end,2))], '
 text(last_step, veh_cov_vals(end,3), ['cov(psi)', num2str(veh_cov_vals(end,3))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
 legend('cov(x)', 'cov(y)', 'cov(\psi)')
 legend('Location', 'best');
-saveas(gcf, fullfile(directory, 'Vehicle_covariances_before.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Vehicle_covariances_before.png'), 'png');
 
 
 % Plot vehicle covariance.
@@ -84,21 +84,21 @@ saveas(gcf, fullfile(directory, 'Vehicle_covariances_before.svg'), 'svg');
 % text(last_step, land_cov_vals(end,2), ['cov(y)', num2str(land_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
 % legend('x','y','psi')
 % legend('Location', 'northwest');
-% saveas(gcf, fullfile(directory, 'landmark_covariances_before.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'landmark_covariances_before.png'), 'png');
 
 
 % Plot errors.
 % minislam.graphics.FigureManager.getFigure('Errors');
 % clf
 % plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-% saveas(gcf, fullfile(directory, 'Errors_before.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Errors_before.png'), 'png');
 % hold on
 
 % Plot chi2 values.
 % minislam.graphics.FigureManager.getFigure('chi2 values');
 % clf
 % plot(results{1}.chi2Time, results{1}.chi2History)
-% saveas(gcf, fullfile(directory, 'Chi2_before.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Chi2_before.png'), 'png');
 % hold on
 
 
@@ -153,14 +153,14 @@ end
 
 % save the map after loop closure
 minislam.graphics.FigureManager.getFigure('Simulator Output');
-saveas(gcf, fullfile(directory, 'map_after.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'map_after.png'), 'png');
 
 
 % Plot optimisation times.
 % minislam.graphics.FigureManager.getFigure('Optimization times');
 % clf
 % plot(results{1}.optimizationTimes, '*')
-% saveas(gcf, fullfile(directory, 'Optimisation_times_after.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Optimisation_times_after.png'), 'png');
 % hold on
 
 % Plot covariance.
@@ -175,20 +175,20 @@ text(last_step, 0.25, ['last cov(y)', num2str(veh_cov_vals(end,2))], 'VerticalAl
 text(last_step, veh_cov_vals(end,3), ['cov(psi)', num2str(veh_cov_vals(end,3))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
 legend('cov(x)', 'cov(y)', 'cov(\psi)')
 legend('Location', 'best');
-saveas(gcf, fullfile(directory, 'Vehicle_covariances_after.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Vehicle_covariances_after.png'), 'png');
 hold on
 
 % Plot errors.
 % minislam.graphics.FigureManager.getFigure('Errors');
 % clf
 % plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-% saveas(gcf, fullfile(directory, 'Errors_after.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Errors_after.png'), 'png');
 % hold on
 
 % Plot chi2 values.
 % minislam.graphics.FigureManager.getFigure('chi2 values');
 % clf
 % plot(results{1}.chi2Time, results{1}.chi2History)
-% saveas(gcf, fullfile(directory, 'Chi2_after.svg'), 'svg');
+% saveas(gcf, fullfile(directory, 'Chi2_after.png'), 'png');
 % hold on
 

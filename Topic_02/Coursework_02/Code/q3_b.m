@@ -32,7 +32,8 @@ DriveBotSLAMSystem_obj.setRecommendOptimizationPeriod(500);
 
 % Q3b -- set this attribute to true so that we can run graph pruning after
 % graph has been generated
-DriveBotSLAMSystem_obj.setGraphPruning(true);
+graph_prune= true;
+DriveBotSLAMSystem_obj.setGraphPruning(graph_prune);
 
 % Set whether the SLAM system should remove prediction edges. If the first
 % value is true, the SLAM system should remove the edges. If the second is
@@ -46,7 +47,11 @@ results = minislam.mainLoop(DriveBotSimulator_obj, DriveBotSLAMSystem_obj);
 
 % Minimal output plots. For your answers, please provide titles and label
 % the axes.
-directory= 'Images/q3_b';
+if graph_prune
+    directory= 'Images/q3_b/Graph_prune';
+else
+    directory= 'Images/q3_b/Graph_full';
+end
 if ~exist(directory, 'dir')
     mkdir(directory);
 end
@@ -60,7 +65,7 @@ hold on
 title('Optimization times')
 xlabel('Timestep')
 ylabel('Optimisation Time (sec)')
-saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Optimisation_times.png'), 'png');
 
 % Plot the error curves
 % minislam.graphics.FigureManager.getFigure('Errors');
@@ -77,7 +82,7 @@ legend('Location', 'best');
 xlabel('Timestep')
 title('Vehicle Covariances')
 ylabel('covariance')
-saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Vehicle_covariances.png'), 'png');
 
 % Plot errors
 minislam.graphics.FigureManager.getFigure('Errors');
@@ -92,7 +97,7 @@ legend('Location', 'best');
 title('Errors')
 xlabel('Timestep')
 ylabel('error')
-saveas(gcf, fullfile(directory, 'errors.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'errors.png'), 'png');
 
 
 % Plot the chi2 value down here. The chi2 values are logged internally and
@@ -107,13 +112,13 @@ for log_chi= [true, false]
         title('log(Chi2) values')
         ylabel('log(Chi2) Value')
         xlabel('Timestep')
-        saveas(gcf, fullfile(directory, 'log_Chi2.svg'), 'svg');
+        saveas(gcf, fullfile(directory, 'log_Chi2.png'), 'png');
     else
         plot(results{1}.chi2Time, results{1}.chi2History) % notice the log
         title('Chi2 values')
         ylabel('Chi2 Value')
         xlabel('Timestep')
-        saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
+        saveas(gcf, fullfile(directory, 'Chi2.png'), 'png');
     end
 end
 

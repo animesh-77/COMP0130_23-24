@@ -38,35 +38,35 @@ end
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
 plot(results{1}.optimizationTimes, '*')
-saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Optimisation_times.png'), 'png');
 hold on
 
 % Plot the error curves
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
 plot(results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Errors.png'), 'png');
 hold on
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
 plot(results{1}.vehicleCovarianceHistory')
-saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Vehicle_covariances.png'), 'png');
 hold on
 
 % Plot errors
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
 plot(results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-saveas(gcf, fullfile(directory, 'Errors_2.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Errors_2.png'), 'png');
 hold on
 
 % Plot chi2 values
 minislam.graphics.FigureManager.getFigure('chi2 values');
 clf
 plot(results{1}.chi2Time, results{1}.chi2History)
-saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Chi2.png'), 'png');
 hold on
 
 
