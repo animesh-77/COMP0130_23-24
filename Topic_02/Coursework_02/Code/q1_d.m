@@ -44,6 +44,7 @@ title('Optimization times')
 xlabel('Timestep')
 ylabel('Optimisation Time (sec)')
 saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Optimisation_times.png'), 'png');
 
 % Plot the error curves
 minislam.graphics.FigureManager.getFigure('Errors');
@@ -59,6 +60,7 @@ title('Errors')
 xlabel('Timestep')
 ylabel('error')
 saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Errors.png'), 'png');
 
 
 % Plot covariance
@@ -72,6 +74,7 @@ xlabel('Timestep')
 title('Vehicle Covariances')
 ylabel('covariance')
 saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Vehicle_covariances.png'), 'png');
 hold on
 
 % Plot chi2 values.
@@ -85,11 +88,14 @@ for log_chi= [true, false]
         ylabel('log(Chi2) Value')
         xlabel('Timestep')
         saveas(gcf, fullfile(directory, 'log_Chi2.svg'), 'svg');
+        saveas(gcf, fullfile(directory, 'log_Chi2.png'), 'png');
+
     else
         plot(results{1}.chi2Time, results{1}.chi2History) % notice the log
         title('Chi2 values')
         ylabel('Chi2 Value')
         xlabel('Timestep')
         saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
+        saveas(gcf, fullfile(directory, 'Chi2.png'), 'png');
     end
 end
