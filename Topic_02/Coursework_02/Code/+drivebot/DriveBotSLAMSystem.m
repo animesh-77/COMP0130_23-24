@@ -449,13 +449,12 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         
         function graphPruning(this)            
             edges = this.graph.edges();
-            
             numEdges = length(edges);
-            fprintf("No. of vertices before graph pruning %d \n", numEdges)
+            fprintf("No. of edges before graph pruning %d \n", numEdges)
             
             vertices = this.graph.vertices();
-            
-            numVertices = length(vertices);            
+            numVertices = length(vertices);  
+            fprintf("No. of vertices before graph pruning %d \n", numVertices)
             
             obsEdgeCount = 0; 
             
@@ -493,7 +492,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                 obsEdgeCount = 0;      
 
                 vertex = this.vehicleVertices{i};
-                if class(vertex) == "drivebot.VehicleStateVertex"
+                if isa(vertex, 'drivebot.graph.VehicleStateVertex')
                     
                     % find cell of all edges for this vertex 
                     vertexEdges = vertex.edges();
@@ -504,7 +503,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                      for j = 1:numVertexEdges 
                         thisEdge = vertexEdges{j};
 
-                        if class(thisEdge) == "drivebot.LandmarkRangeBearingEdge"
+                        if isa(thisEdge, 'drivebot.graph.LandmarkRangeBearingEdge')
                             
                             obsEdgeCount = obsEdgeCount + 1; 
                        
@@ -528,9 +527,14 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                 end 
             end
             
-        removedEdges ;
+        edges = this.graph.edges();
         numEdges = length(edges);
-        fprintf("No. of vertices after graph pruning %d \n", numEdges)
+        fprintf("No. of edges before graph pruning %d \n", numEdges)
+        
+        vertices = this.graph.vertices();
+        numVertices = length(vertices);  
+        fprintf("No. of vertices before graph pruning %d \n", numVertices)
+
 
         end
     end
