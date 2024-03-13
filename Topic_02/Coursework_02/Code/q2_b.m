@@ -59,7 +59,7 @@ legend('Location', 'best');
 title('Errors')
 xlabel('Timestep')
 ylabel('error')
-saveas(gcf, fullfile(directory, 'errors.png'), 'png');
+saveas(gcf, fullfile(directory, 'Errors.png'), 'png');
 
 
 % Plot covariance
