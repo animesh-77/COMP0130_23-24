@@ -260,11 +260,10 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         
         function handlePredictToTime(DriveBotSLAMSystem_obj, time, dT)
 
-            % Create the next vehicle vertex and add it to the graph
+            % Q1b Create the next vehicle vertex and later we add it to the graph
             DriveBotSLAMSystem_obj.currentVehicleVertex = drivebot.graph.VehicleStateVertex(time);
-            % DriveBotSLAMSystem_obj.graph.addVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
 
-            % Create the edge
+            % Q1b Create the edge
             processModelEdge = drivebot.graph.VehicleKinematicsEdge(dT);
             processModelEdge.setVertex(1, DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId});
             processModelEdge.setVertex(2, DriveBotSLAMSystem_obj.currentVehicleVertex); 
@@ -272,13 +271,13 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             processModelEdge.setInformation(inv(DriveBotSLAMSystem_obj.uCov));
             processModelEdge.initialize();
             
-            % adding edge to graph
+            % Q1b adding edge to graph
             DriveBotSLAMSystem_obj.graph.addEdge(processModelEdge);
 
-            % Add the prediciton to the new vertex
+            % Q1b Add the prediciton to the new vertex
             DriveBotSLAMSystem_obj.currentVehicleVertex.setEstimate(processModelEdge.vertex(2).estimate());
 
-            % adding the current vehicle vertex to the graph
+            % Q1b adding the current vehicle vertex to the graph
             DriveBotSLAMSystem_obj.graph.addVertex(DriveBotSLAMSystem_obj.currentVehicleVertex);
 
             DriveBotSLAMSystem_obj.numProcessModelEdges = DriveBotSLAMSystem_obj.numProcessModelEdges + 1;
@@ -287,7 +286,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             %warning('drivebotslam:handlepredicttotime:unimplemented', ...
             %    'Implement the rest of this method for Q1b.');
             
-            % Bump the indices
+            % Q1b Bump the indices
             DriveBotSLAMSystem_obj.vehicleVertexId = DriveBotSLAMSystem_obj.vehicleVertexId + 1;
             DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId} = DriveBotSLAMSystem_obj.currentVehicleVertex;
 
