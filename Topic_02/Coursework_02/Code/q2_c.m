@@ -83,16 +83,51 @@ allEdges = graph.edges();
 numVertices = length(allVertices)
 numEdges= length(allEdges)
 
+numVehicleVertices= 0;
+numLandmarkVertices= 0;
+for i=1:numVertices
+    current_vertex= allVertices{i};
 
-numVehicleVertices = length(results{1}.vehicleStateHistory');
-fprintf('Total number of vehicle poses stored: %.0d. \n', numVehicleVertices)
+    switch true
+        case isa(current_vertex, 'drivebot.graph.VehicleStateVertex')
+            numVehicleVertices = numVehicleVertices+ 1;
+        case isa(current_vertex, 'drivebot.graph.LandmarkStateVertex')
+            numLandmarkVertices = numLandmarkVertices+ 1;
+
+        otherwise
+            warning("New type of vertex!!! impossible")
+            disp(class(current_vertex))
+    end
+end
 
 
-numLandmarkVertices = numVertices - numVehicleVertices;
+fprintf('Total number of vehicle poses: %.0d. \n', numVehicleVertices)
 fprintf('Total number of landmarks initalized: %.0d. \n', numLandmarkVertices)
 
-numObsEdges = numEdges - numVehicleVertices -1;
+
+numObsEdges= 0;
+numKineEdges= 0;
+
+for i=1:numEdges
+    current_edge= allEdges{i};
+
+    switch true
+
+        case isa(current_edge, 'drivebot.graph.VehicleKinematicsEdge')
+            numKineEdges = numKineEdges+ 1;
+        case isa(current_edge, 'drivebot.graph.LandmarkRangeBearingEdge')
+            numObsEdges = numObsEdges+ 1;
+        otherwise
+            warning("New type of Edge Initialisation ..." + ...
+                "GPS or compasss!!! should be set off")
+            disp(class(current_edge))
+    end
+end
+
 numObsEdges_per_step = numObsEdges / numVehicleVertices;
+
+
+
 fprintf(['Average number of observations made by a robot at' ...
     ' each timestep: %.2d. \n'], numObsEdges_per_step)
 
@@ -100,9 +135,6 @@ fprintf(['Average number of observations made by a robot at' ...
 numObsEdges_per_landmark= numObsEdges/numLandmarkVertices;
 fprintf(['Average number of observations made by a robot for' ...
     ' each landmark: %.2d. \n'], numObsEdges_per_landmark)
-
-% landmarkObservationsPerVehicleVertex = 0;
-% observationsPerLandmarkVertex = 0;
 
 % Q2c:
 % Finish implementing the code to capture information about the graph

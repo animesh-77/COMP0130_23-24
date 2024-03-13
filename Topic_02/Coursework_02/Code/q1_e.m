@@ -7,7 +7,8 @@ configuration_obj = drivebot.SimulatorConfiguration();
 configuration_obj.enableGPS = true;
 
 % Set to true for part ii
-configuration_obj.enableCompass = true;
+enable_compass= true;
+configuration_obj.enableCompass = enable_compass;
 
 % Set up the simulator
 DriveBotSimulator_obj = drivebot.DriveBotSimulator(configuration_obj, 'q1_e');
@@ -34,7 +35,13 @@ results = minislam.mainLoop(DriveBotSimulator_obj, DriveBotSLAMSystem_obj);
 
 % Minimal output plots. For your answers, please provide titles and label
 % the axes.
-directory= 'Images/q1_e';
+if enable_compass == true
+   
+    directory= 'Images/q1_e/compass_enabled';
+else
+    directory= 'Images/q1_e/no_compass';
+end
+
 if ~exist(directory, 'dir')
     mkdir(directory);
 end
@@ -42,36 +49,57 @@ end
 % Plot optimisation times
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
-plot(results{1}.vehicleStateTime, results{1}.optimizationTimes, '*')
-saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
+plot(results{1}.optimizationTimes, '*')
 hold on
+title('Optimization times')
+xlabel('Timestep')
+ylabel('Optimisation Time (sec)')
+saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
 
 % Plot the error curves
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
-plot(results{1}.vehicleStateTime, results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
+% wrap theta in [-pi, pi]
+errors = results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory';
+errors(:,3) = g2o.stuff.normalize_thetas(errors(:,3));
+plot(errors)
 hold on
+legend('x error', 'y error', '\psi error')
+legend('Location', 'best');
+title('Errors')
+xlabel('Timestep')
+ylabel('error')
+saveas(gcf, fullfile(directory, 'errors.svg'), 'svg');
+
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
-plot(results{1}.vehicleStateTime, results{1}.vehicleCovarianceHistory')
+plot(results{1}.vehicleCovarianceHistory')
+hold on
+legend('cov(x)', 'cov(y)', 'cov(\psi)')
+legend('Location', 'best');
+xlabel('Timestep')
+title('Vehicle Covariances')
+ylabel('covariance')
 saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
-hold on
 
-% Plot errors
-minislam.graphics.FigureManager.getFigure('Errors');
-clf
-plot(results{1}.vehicleStateTime, results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-saveas(gcf, fullfile(directory, 'Errors_2.svg'), 'svg');
-hold on
 
 % Plot chi2 values
+log_chi= false;
 minislam.graphics.FigureManager.getFigure('chi2 values');
 clf
-plot(results{1}.chi2Time, results{1}.chi2History)
-saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
+if log_chi
+    plot(results{1}.chi2Time, log(results{1}.chi2History)) % notice the log
+    title('log(Chi2) values')
+    ylabel('log(Chi2) Value')
+else
+    plot(results{1}.chi2Time, results{1}.chi2History) % notice the log
+    title('Chi2 values')
+    ylabel('Chi2 Value')
 hold on
+end
+xlabel('Timestep')
+saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
 
 

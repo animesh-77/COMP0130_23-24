@@ -76,22 +76,22 @@ title("Before loop closure")
 text(last_step, veh_cov_vals(end,1), ['cov(x)', num2str(veh_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
 text(last_step, veh_cov_vals(end,2), ['cov(y)', num2str(veh_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
 text(last_step, veh_cov_vals(end,3), ['cov(psi)', num2str(veh_cov_vals(end,3))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
-legend('x','y','psi')
-legend('Location', 'northwest');
+legend('cov(x)', 'cov(y)', 'cov(\psi)')
+legend('Location', 'best');
 saveas(gcf, fullfile(directory, 'Vehicle_covariances_before.svg'), 'svg');
 
 
 % Plot vehicle covariance.
-minislam.graphics.FigureManager.getFigure('Landmark Covariances');
-clf
-land_cov_vals= results{1}.vehicleCovarianceHistory' ;% (N,2) matrix
-plot(land_cov_vals)
-hold on
-text(last_step, land_cov_vals(end,1), ['cov(x)', num2str(land_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
-text(last_step, land_cov_vals(end,2), ['cov(y)', num2str(land_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
-legend('x','y','psi')
-legend('Location', 'northwest');
-saveas(gcf, fullfile(directory, 'landmark_covariances_before.svg'), 'svg');
+% minislam.graphics.FigureManager.getFigure('Landmark Covariances');
+% clf
+% land_cov_vals= results{1}.vehicleCovarianceHistory' ;% (N,2) matrix
+% plot(land_cov_vals)
+% hold on
+% text(last_step, land_cov_vals(end,1), ['cov(x)', num2str(land_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+% text(last_step, land_cov_vals(end,2), ['cov(y)', num2str(land_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+% legend('x','y','psi')
+% legend('Location', 'northwest');
+% saveas(gcf, fullfile(directory, 'landmark_covariances_before.svg'), 'svg');
 
 
 % Plot errors.
@@ -184,11 +184,11 @@ veh_cov_vals= results{1}.vehicleCovarianceHistory';
 plot(veh_cov_vals)
 hold on
 title("After loop closure")
-text(last_step, veh_cov_vals(end,1), ['cov(x)', num2str(veh_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
-text(last_step, veh_cov_vals(end,2), ['cov(y)', num2str(veh_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(last_step, 0.5, ['last cov(x)', num2str(veh_cov_vals(end,1))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(last_step, 0.25, ['last cov(y)', num2str(veh_cov_vals(end,2))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
 text(last_step, veh_cov_vals(end,3), ['cov(psi)', num2str(veh_cov_vals(end,3))], 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
-legend('x','y','psi')
-legend('Location', 'northwest');
+legend('cov(x)', 'cov(y)', 'cov(\psi)')
+legend('Location', 'best');
 saveas(gcf, fullfile(directory, 'Vehicle_covariances_after.svg'), 'svg');
 hold on
 

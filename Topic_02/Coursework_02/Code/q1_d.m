@@ -38,32 +38,48 @@ end
 % this will be a blank graph
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
-plot(results{1}.vehicleStateTime, results{1}.optimizationTimes, '*')
-saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
+plot(results{1}.optimizationTimes, '*')
 hold on
+title('Optimization times')
+xlabel('Timestep')
+ylabel('Optimisation Time (sec)')
+saveas(gcf, fullfile(directory, 'Optimisation_times.svg'), 'svg');
 
 % Plot the error curves
 minislam.graphics.FigureManager.getFigure('Errors');
 clf
-plot(results{1}.vehicleStateTime, results{1}.vehicleStateHistory'-results{1}.vehicleStateHistory')
-legend('x', 'y', 'psi')
-saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
+% wrap theta in [-pi, pi]
+errors = results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory';
+errors(:,3) = g2o.stuff.normalize_thetas(errors(:,3));
+plot(errors)
 hold on
+legend('x error', 'y error', '\psi error')
+legend('Location', 'best');
+title('Errors')
+xlabel('Timestep')
+ylabel('error')
+saveas(gcf, fullfile(directory, 'errors.svg'), 'svg');
 
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
 clf
-plot(results{1}.vehicleStateTime, results{1}.vehicleCovarianceHistory')
-legend('x', 'y', 'psi')
+plot(results{1}.vehicleCovarianceHistory')
+hold on
+legend('cov(x)', 'cov(y)', 'cov(\psi)')
+legend('Location', 'best');
+xlabel('Timestep')
+title('Vehicle Covariances')
+ylabel('covariance')
 saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
 hold on
 
-% Plot errors
-minislam.graphics.FigureManager.getFigure('Errors');
+% Plot chi2 values.
+minislam.graphics.FigureManager.getFigure('chi2 values');
 clf
-plot(results{1}.vehicleStateTime, ...
-    results{1}.vehicleStateHistory'-results{1}.vehicleTrueStateHistory')
-legend('x', 'y', 'psi')
-saveas(gcf, fullfile(directory, 'Errors_2.svg'), 'svg');
+plot(results{1}.chi2Time, log(results{1}.chi2History)) % notice the log
 hold on
+title('log(Chi2) values')
+xlabel('Timestep')
+ylabel('log(Chi2) Value')
+saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
