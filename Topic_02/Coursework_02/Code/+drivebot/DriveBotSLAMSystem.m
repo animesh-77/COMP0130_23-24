@@ -336,10 +336,10 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
         
         function handleLandmarkObservationEvent(DriveBotSLAMSystem_obj, event)
             
-            % Iterate over all the landmark measurements
+            % Q2b Iterate over all the landmark measurements
             for l = 1 : length(event.landmarkIds)
                 
-                % Get the landmark vertex associated with this measurement.
+                % Q2b Get the landmark vertex associated with this measurement.
                 % If necessary, a new landmark vertex is created and added
                 % to the graph.
                 [landmarkVertex, newVertexCreated] = DriveBotSLAMSystem_obj.createOrGetLandmark(event.landmarkIds(l));
@@ -351,7 +351,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
                 %     'Implement the rest of this method for Q2b.');
 
 
-                % Add the measurement edge
+                % Q2b  Add the measurement edge
                 landmarkRangeBearingEdge = drivebot.graph.LandmarkRangeBearingEdge();
                 landmarkRangeBearingEdge.setVertex(1, DriveBotSLAMSystem_obj.vehicleVertices{DriveBotSLAMSystem_obj.vehicleVertexId});
                 landmarkRangeBearingEdge.setVertex(2, landmarkVertex);
@@ -460,7 +460,7 @@ classdef DriveBotSLAMSystem < minislam.slam.SLAMSystem
             actualNumVertices = 0; 
             removedEdges = 0;
             
-            for i = 1:numVertices % loop through all vertices 
+            for i = 1:numVertices % Q3_b loop through all vertices 
                 
                 vertex = this.vehicleVertices{i};         
                 
