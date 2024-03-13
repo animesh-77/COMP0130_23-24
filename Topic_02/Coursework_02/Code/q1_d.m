@@ -58,7 +58,7 @@ legend('Location', 'best');
 title('Errors')
 xlabel('Timestep')
 ylabel('error')
-saveas(gcf, fullfile(directory, 'errors.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
 
 
 % Plot covariance
@@ -75,11 +75,21 @@ saveas(gcf, fullfile(directory, 'Vehicle_covariances.svg'), 'svg');
 hold on
 
 % Plot chi2 values.
-minislam.graphics.FigureManager.getFigure('chi2 values');
-clf
-plot(results{1}.chi2Time, log(results{1}.chi2History)) % notice the log
-hold on
-title('log(Chi2) values')
-xlabel('Timestep')
-ylabel('log(Chi2) Value')
-saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
+for log_chi= [true, false]
+    minislam.graphics.FigureManager.getFigure('chi2 values');
+    clf
+    
+    if log_chi
+        plot(results{1}.chi2Time, log(results{1}.chi2History)) % notice the log
+        title('log(Chi2) values')
+        ylabel('log(Chi2) Value')
+        xlabel('Timestep')
+        saveas(gcf, fullfile(directory, 'log_Chi2.svg'), 'svg');
+    else
+        plot(results{1}.chi2Time, results{1}.chi2History) % notice the log
+        title('Chi2 values')
+        ylabel('Chi2 Value')
+        xlabel('Timestep')
+        saveas(gcf, fullfile(directory, 'Chi2.svg'), 'svg');
+    end
+end
