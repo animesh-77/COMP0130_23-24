@@ -65,7 +65,7 @@ legend('Location', 'best');
 title('Errors')
 xlabel('Timestep')
 ylabel('error')
-saveas(gcf, fullfile(directory, 'errors.svg'), 'svg');
+saveas(gcf, fullfile(directory, 'Errors.svg'), 'svg');
 
 % Plot covariance
 minislam.graphics.FigureManager.getFigure('Vehicle Covariances');
